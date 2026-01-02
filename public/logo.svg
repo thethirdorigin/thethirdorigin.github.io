@@ -1,0 +1,20 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Horizontal line at top -->
+  <rect x="50" y="40" width="100" height="22" rx="2" ry="2" fill="#ea580c"/>
+  
+  <!-- Diagonal from right going to center, with flat bottom -->
+  <polygon points="120,40 150,40 150,62 115,94 85,94 120,62" fill="#ea580c"/>
+  
+  <!-- Bottom half of circle with flat top edges -->
+  <path d="M 45 115 
+           L 45 120
+           A 55 55 0 0 0 155 120
+           L 155 115
+           L 133 115
+           L 133 120
+           A 33 33 0 0 1 67 120
+           L 67 115
+           Z" 
+        fill="#ea580c"/>
+</svg>
+
