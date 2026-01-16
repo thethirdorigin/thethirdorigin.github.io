@@ -1,0 +1,70 @@
+{
+    "title": "Babel - Privacy Policy",
+    "effectiveDate": "January 16, 2026",
+    "sections": [
+        {
+            "content": "Third Origin L.L.C-FZ (\"we,\" \"our,\" or \"us\") operates the Babel mobile application (the \"App\"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our App."
+        },
+        {
+            "title": "1. Information We Collect",
+            "subsections": [
+                {
+                    "title": "Account Information",
+                    "content": "• Phone Number: Used for account creation and authentication via SMS verification."
+                },
+                {
+                    "title": "Pregnancy Profile (Optional)",
+                    "content": "• Due date and current trimester\n• Known allergies\n• Dietary restrictions\n\nThis information helps us provide personalized safety guidance tailored to your stage of pregnancy."
+                },
+                {
+                    "title": "Usage Data",
+                    "content": "• Product barcodes you scan\n• Questions you ask about products or ingredients\n• Your scan and query history\n• Feedback you provide on our safety assessments\n• Feature usage and quota tracking"
+                },
+                {
+                    "title": "Device Information",
+                    "content": "• Push notification tokens (if you enable notifications)\n• Device type and operating system\n• App version"
+                }
+            ]
+        },
+        {
+            "title": "2. How We Use Your Information",
+            "content": "We use the collected information to:\n\n• Provide pregnancy safety analysis for products and ingredients\n• Personalize recommendations based on your trimester and health profile\n• Maintain your scan and query history\n• Send push notifications (quota alerts, subscription reminders, tips)\n• Improve our AI-powered safety assessments\n• Respond to your inquiries and provide customer support\n• Enforce our Terms of Service"
+        },
+        {
+            "title": "3. Third-Party Services",
+            "content": "We use the following third-party services to provide our App:\n\n• Open Food Facts: To retrieve product information from barcodes\n• AI/LLM Services: To analyze product safety (your queries are processed but not stored by these services for training)\n• Cloud Infrastructure: To securely store and process your data\n\nThese services may have access to certain data necessary for their functions. We ensure they comply with applicable data protection standards."
+        },
+        {
+            "title": "4. Data Retention",
+            "content": "• Account data is retained while your account is active\n• Scan and query history is retained for your reference\n• You may delete individual history items at any time\n• Upon account deletion, we remove your personal data within 30 days"
+        },
+        {
+            "title": "5. Your Rights",
+            "content": "You have the right to:\n\n• Access: View your personal data through the App\n• Correction: Update your profile information at any time\n• Deletion: Request deletion of your account and associated data\n• Data Portability: Request a copy of your data\n• Withdraw Consent: Disable notifications or delete your account\n\nTo exercise any of these rights, please contact us using the details provided in Section 10 below."
+        },
+        {
+            "title": "6. Data Security",
+            "content": "We implement industry-standard security measures to protect your data, including:\n\n• Encrypted data transmission (TLS/SSL)\n• Secure token-based authentication\n• Regular security audits\n\nHowever, no method of electronic transmission or storage is 100% secure. We cannot guarantee absolute security."
+        },
+        {
+            "title": "7. Children's Privacy",
+            "content": "Babel is not intended for use by individuals under 13 years of age. We do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will take steps to delete it promptly."
+        },
+        {
+            "title": "8. International Data Transfers",
+            "content": "Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place for such transfers in accordance with applicable data protection laws."
+        },
+        {
+            "title": "9. Changes to This Policy",
+            "content": "We may update this Privacy Policy from time to time. We will notify you of material changes by updating the \"Effective Date\" at the top and, where appropriate, through in-app notifications."
+        },
+        {
+            "title": "10. Contact Us",
+            "content": "If you have questions about this Privacy Policy or our data practices, please contact us at:",
+            "contact": {
+                "company": "Third Origin L.L.C-FZ",
+                "email": "privacy@thirdorigin.io"
+            }
+        }
+    ]
+}

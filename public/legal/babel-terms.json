@@ -1,0 +1,66 @@
+{
+    "title": "Babel - Terms of Service",
+    "effectiveDate": "January 16, 2026",
+    "sections": [
+        {
+            "content": "Welcome to Babel. These Terms of Service (\"Terms\") govern your use of the Babel mobile application (the \"App\") operated by Third Origin L.L.C-FZ (\"we,\" \"our,\" or \"us\"). By accessing or using the App, you agree to be bound by these Terms."
+        },
+        {
+            "title": "IMPORTANT MEDICAL DISCLAIMER",
+            "is_disclaimer": true,
+            "content": "Babel provides INFORMATIONAL CONTENT ONLY and is NOT a substitute for professional medical advice, diagnosis, or treatment. The safety assessments, recommendations, and information provided by the App are for general educational purposes only.\n\nALWAYS consult with your doctor, midwife, or qualified healthcare provider before making any decisions about products, medications, foods, or activities during pregnancy.\n\nNever disregard professional medical advice or delay seeking it because of information you read in this App. If you have a medical emergency, call your doctor or emergency services immediately."
+        },
+        {
+            "title": "1. Acceptance of Terms",
+            "content": "By creating an account or using the App, you confirm that you:\n\n• Are at least 13 years of age\n• Have read and understood these Terms\n• Agree to be bound by these Terms and our Privacy Policy\n• Understand that Babel does not provide medical advice"
+        },
+        {
+            "title": "2. Description of Service",
+            "content": "Babel is a pregnancy safety information app that allows you to:\n\n• Scan product barcodes to receive safety information\n• Ask questions about ingredients, products, and activities\n• View trimester-specific guidance\n• Track your scan and query history\n\nOur assessments are generated using AI technology and publicly available research. While we strive for accuracy, we cannot guarantee that all information is complete, current, or error-free."
+        },
+        {
+            "title": "3. Account Terms",
+            "content": "• You must provide a valid phone number for verification\n• You are responsible for maintaining the security of your account\n• You must not share your account with others\n• You must notify us immediately of any unauthorized access\n• We reserve the right to suspend or terminate accounts that violate these Terms"
+        },
+        {
+            "title": "4. Subscription and Quotas",
+            "content": "• Free tier users have limited monthly scans, queries, and history views\n• Paid subscriptions provide increased or unlimited usage\n• Quotas reset monthly on your billing cycle\n• Subscription fees are non-refundable except as required by law\n• We may modify pricing or features with reasonable notice"
+        },
+        {
+            "title": "5. User Responsibilities",
+            "content": "You agree NOT to:\n\n• Use the App for any illegal purpose\n• Attempt to circumvent usage limits or security measures\n• Submit false or misleading information\n• Use automated systems to access the App without permission\n• Reverse engineer or attempt to extract the App's source code\n• Use the App to harm, harass, or mislead others"
+        },
+        {
+            "title": "6. Intellectual Property",
+            "content": "• The App, including its design, features, and content, is owned by Third Origin L.L.C-FZ\n• You may not copy, modify, or distribute our proprietary content\n• Product information may be sourced from third-party databases\n• Safety assessments are generated content and remain our intellectual property"
+        },
+        {
+            "title": "7. Limitation of Liability",
+            "content": "TO THE MAXIMUM EXTENT PERMITTED BY LAW:\n\n• The App is provided \"AS IS\" without warranties of any kind\n• We do not guarantee the accuracy, completeness, or reliability of safety assessments\n• We are not liable for any health outcomes resulting from use of the App\n• We are not liable for indirect, incidental, or consequential damages\n• Our total liability shall not exceed the amount you paid for the App in the past 12 months"
+        },
+        {
+            "title": "8. Indemnification",
+            "content": "You agree to indemnify and hold harmless Third Origin L.L.C-FZ, its officers, directors, employees, and agents from any claims, damages, or expenses arising from your use of the App or violation of these Terms."
+        },
+        {
+            "title": "9. Termination",
+            "content": "• You may delete your account at any time through the App\n• We may suspend or terminate your access for Terms violations\n• Upon termination, your right to use the App ceases immediately\n• Provisions that by nature should survive will remain in effect"
+        },
+        {
+            "title": "10. Changes to Terms",
+            "content": "We may modify these Terms at any time. Material changes will be communicated through the App or other means. Continued use after changes constitutes acceptance of the updated Terms."
+        },
+        {
+            "title": "11. Governing Law",
+            "content": "These Terms are governed by the laws of the United Arab Emirates. Any disputes shall be resolved in the courts of Dubai, UAE."
+        },
+        {
+            "title": "12. Contact Us",
+            "content": "For questions about these Terms, please contact us at:",
+            "contact": {
+                "company": "Third Origin L.L.C-FZ",
+                "email": "legal@thirdorigin.io"
+            }
+        }
+    ]
+}

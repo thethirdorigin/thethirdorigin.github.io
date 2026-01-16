@@ -1,0 +1,49 @@
+{
+    "title": "Privacy Policy",
+    "effectiveDate": "January 16, 2026",
+    "sections": [
+        {
+            "content": "Third Origin L.L.C-FZ (\"we,\" \"our,\" or \"us\") operates the thirdorigin.io website (the \"Website\"). This Privacy Policy explains how we collect, use, and safeguard your information when you visit our Website."
+        },
+        {
+            "title": "1. Information We Collect",
+            "content": "When you visit our Website, we may collect:\n\n• Contact Information: If you reach out to us via email, we collect your email address and any information you provide in your message.\n\n• Usage Data: We may collect anonymous, aggregated data about how visitors interact with our Website, such as pages visited and time spent on the site.\n\n• Device Information: Basic technical information such as browser type, operating system, and IP address for security and analytics purposes."
+        },
+        {
+            "title": "2. How We Use Your Information",
+            "content": "We use the collected information to:\n\n• Respond to your inquiries and communications\n• Improve our Website and user experience\n• Ensure security and prevent abuse\n• Comply with legal obligations"
+        },
+        {
+            "title": "3. Cookies and Tracking",
+            "content": "Our Website may use essential cookies to ensure proper functionality. We do not use tracking cookies for advertising purposes. You can configure your browser to refuse cookies, though this may affect certain Website features."
+        },
+        {
+            "title": "4. Third-Party Links",
+            "content": "Our Website may contain links to our applications and third-party services. This Privacy Policy applies only to our Website. We encourage you to review the privacy policies of any linked applications or services."
+        },
+        {
+            "title": "5. Data Security",
+            "content": "We implement reasonable security measures to protect your information. However, no method of electronic transmission or storage is 100% secure, and we cannot guarantee absolute security."
+        },
+        {
+            "title": "6. Data Retention",
+            "content": "We retain your information only for as long as necessary to fulfill the purposes outlined in this policy or as required by law. Contact information from inquiries is retained for up to 2 years unless you request deletion."
+        },
+        {
+            "title": "7. Your Rights",
+            "content": "You have the right to:\n\n• Access: Request information about data we hold about you\n• Correction: Request correction of inaccurate data\n• Deletion: Request deletion of your personal data\n• Portability: Request a copy of your data\n\nTo exercise these rights, please contact us using the details in Section 9."
+        },
+        {
+            "title": "8. Changes to This Policy",
+            "content": "We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated effective date."
+        },
+        {
+            "title": "9. Contact Us",
+            "content": "If you have questions about this Privacy Policy, please contact us at:",
+            "contact": {
+                "company": "Third Origin L.L.C-FZ",
+                "email": "privacy@thirdorigin.io"
+            }
+        }
+    ]
+}

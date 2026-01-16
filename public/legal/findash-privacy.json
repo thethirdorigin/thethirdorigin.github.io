@@ -1,0 +1,62 @@
+{
+    "title": "Findash - Privacy Policy",
+    "effectiveDate": "January 16, 2026",
+    "sections": [
+        {
+            "content": "Third Origin L.L.C-FZ (\"we,\" \"our,\" or \"us\") operates the Findash financial dashboard application (the \"App\"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our App."
+        },
+        {
+            "title": "1. Information We Collect",
+            "subsections": [
+                {
+                    "title": "YNAB Account Information",
+                    "content": "• YNAB User ID: Provided by YNAB during OAuth authentication\n• OAuth Tokens: Access and refresh tokens for connecting to your YNAB account\n\nWe do NOT store your YNAB password. Authentication is handled entirely through YNAB's secure OAuth system."
+                },
+                {
+                    "title": "Financial Data from YNAB",
+                    "content": "When you connect your YNAB account, we sync and cache the following data to provide dashboard functionality:\n\n• Budgets and budget settings\n• Accounts (names, types, balances)\n• Categories and category groups\n• Transactions (payees, amounts, dates, memos)\n• Monthly budget assignments and activity\n\nThis data is synced from YNAB using their official API with your explicit authorization."
+                },
+                {
+                    "title": "Usage Data",
+                    "content": "• Dashboard interactions and feature usage\n• AI insight requests and explanations viewed\n• Session information for authentication"
+                }
+            ]
+        },
+        {
+            "title": "2. How We Use Your Information",
+            "content": "We use the collected information to:\n\n• Display your financial dashboard with spending breakdowns and trends\n• Calculate statistics including income, expenses, savings rate, and net worth\n• Generate server-side insights (anomaly detection, budget alerts)\n• Provide AI-powered explanations of your financial data on request\n• Maintain your authenticated session\n• Improve our services and user experience"
+        },
+        {
+            "title": "3. Data Storage and Security",
+            "content": "We implement robust security measures to protect your financial data:\n\n• Encrypted Token Storage: Your YNAB OAuth tokens are encrypted using Fernet symmetric encryption before storage\n• Secure Sessions: Session cookies are signed, httpOnly, and secure\n• Database Security: Financial data is stored in AWS RDS PostgreSQL with VPC isolation\n• HTTPS Enforcement: All communications are encrypted via CloudFront HTTPS\n• Secret Management: Sensitive credentials are stored in AWS Systems Manager Parameter Store (SecureString)\n\nDespite these measures, no method of electronic transmission or storage is 100% secure. We cannot guarantee absolute security."
+        },
+        {
+            "title": "4. Third-Party Services",
+            "content": "We use the following third-party services:\n\n• YNAB API: To retrieve and sync your financial data with your explicit authorization\n• AWS Infrastructure: For secure hosting, database storage, and processing\n• AWS Bedrock (Claude): For AI-powered financial explanations (data is processed but not stored for training)\n\nThese services comply with applicable data protection standards."
+        },
+        {
+            "title": "5. Data Retention",
+            "content": "• Financial data is cached and synced as long as your account is active\n• You can disconnect your YNAB account and request data deletion at any time\n• Upon account deletion, your data is removed within 30 days\n• AI explanation requests are cached temporarily to improve performance but do not include personal identifiers"
+        },
+        {
+            "title": "6. Your Rights",
+            "content": "You have the right to:\n\n• Access: View all synced financial data through the App\n• Disconnection: Revoke YNAB access at any time through your YNAB account settings\n• Deletion: Request deletion of your account and all associated data\n• Data Portability: Request an export of your data\n\nTo exercise these rights, contact us using the details in Section 9."
+        },
+        {
+            "title": "7. Children's Privacy",
+            "content": "Findash is not intended for use by individuals under 18 years of age. We do not knowingly collect personal information from minors. If we become aware that we have collected such information, we will take steps to delete it promptly."
+        },
+        {
+            "title": "8. Changes to This Policy",
+            "content": "We may update this Privacy Policy from time to time. Material changes will be communicated through the App or via email. Continued use after changes constitutes acceptance of the updated policy."
+        },
+        {
+            "title": "9. Contact Us",
+            "content": "If you have questions about this Privacy Policy or our data practices, please contact us at:",
+            "contact": {
+                "company": "Third Origin L.L.C-FZ",
+                "email": "privacy@thirdorigin.io"
+            }
+        }
+    ]
+}
