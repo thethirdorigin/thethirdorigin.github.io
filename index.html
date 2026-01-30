@@ -16,12 +16,13 @@
 <body>
   <script>
     // Single Page Apps for GitHub Pages
-    // Restore the path that was stored by 404.html before redirect
+    // Restore the path from the query string (set by 404.html)
     (function () {
-      var redirect = sessionStorage.getItem('redirect');
+      var params = new URLSearchParams(window.location.search);
+      var redirect = params.get('redirect');
       if (redirect) {
-        sessionStorage.removeItem('redirect');
-        history.replaceState(null, '', '/' + redirect);
+        // Replace current URL with the original path (removes ?redirect= from URL)
+        history.replaceState(null, '', redirect);
       }
     })();
   </script>
