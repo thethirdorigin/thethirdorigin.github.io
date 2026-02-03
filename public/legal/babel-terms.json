@@ -1,6 +1,6 @@
 {
     "title": "Babel - Terms of Service",
-    "effectiveDate": "January 16, 2026",
+    "effectiveDate": "February 3, 2026",
     "sections": [
         {
             "content": "Welcome to Babel. These Terms of Service (\"Terms\") govern your use of the Babel mobile application (the \"App\") operated by Third Origin L.L.C-FZ (\"we,\" \"our,\" or \"us\"). By accessing or using the App, you agree to be bound by these Terms."
@@ -35,8 +35,8 @@
             "content": "• The App, including its design, features, and content, is owned by Third Origin L.L.C-FZ\n• You may not copy, modify, or distribute our proprietary content\n• Product information may be sourced from third-party databases\n• Safety assessments are generated content and remain our intellectual property"
         },
         {
-            "title": "7. Limitation of Liability",
-            "content": "TO THE MAXIMUM EXTENT PERMITTED BY LAW:\n\n• The App is provided \"AS IS\" without warranties of any kind\n• We do not guarantee the accuracy, completeness, or reliability of safety assessments\n• We are not liable for any health outcomes resulting from use of the App\n• We are not liable for indirect, incidental, or consequential damages\n• Our total liability shall not exceed the amount you paid for the App in the past 12 months"
+            "title": "7. Limitation of Liability and Damages Exclusion",
+            "content": "TO THE MAXIMUM EXTENT PERMITTED BY LAW:\n\n• The App is provided \"AS IS\" without warranties of any kind\n• We do not guarantee the accuracy, completeness, or reliability of safety assessments\n• We are not liable for any health outcomes resulting from use of the App\n• We are not liable for indirect, incidental, or consequential damages\n• Our total liability shall not exceed the amount you paid for the App in the past 12 months\n\nWe expressly disclaim liability for any physical harm, bodily injury, emotional distress, psychological damages, mental anguish, or any health-related outcomes (including but not limited to pregnancy complications, birth defects, miscarriage, fetal harm, allergic reactions, or any other adverse health effects) that may result from your use of or reliance on information provided by the App.\n\nYou acknowledge that the App provides general informational content only, and that any decisions you make based on this information are made at your own risk. We strongly recommend consulting with qualified healthcare professionals before making any health-related decisions."
         },
         {
             "title": "8. Indemnification",
@@ -52,10 +52,43 @@
         },
         {
             "title": "11. Governing Law",
-            "content": "These Terms are governed by the laws of the United Arab Emirates. Any disputes shall be resolved in the courts of Dubai, UAE."
+            "content": "These Terms are governed by the laws of the United Arab Emirates. Subject to the arbitration provisions below, any disputes shall be resolved in the courts of Dubai, UAE."
         },
         {
-            "title": "12. Contact Us",
+            "title": "12. Binding Arbitration",
+            "content": "PLEASE READ THIS SECTION CAREFULLY. IT AFFECTS YOUR LEGAL RIGHTS, INCLUDING YOUR RIGHT TO FILE A LAWSUIT IN COURT.\n\nYou and Third Origin L.L.C-FZ agree that any dispute, claim, or controversy arising out of or relating to these Terms or the use of the App shall be resolved through binding arbitration, rather than in court, except that either party may seek injunctive or other equitable relief in court for infringement of intellectual property rights.\n\nBefore initiating arbitration, you must first send a written notice of dispute to legal@thirdorigin.io describing the nature of the claim and the specific relief sought. We will attempt to resolve the dispute informally within 30 days. If the dispute is not resolved within 30 days, either party may proceed with arbitration.\n\nArbitration shall be administered by the Dubai International Arbitration Centre (DIAC) or, for users in the United States, by JAMS under its Streamlined Arbitration Rules. The arbitration shall be conducted in English. The arbitrator's decision shall be final and binding.\n\nThe arbitrator may award the same damages and relief that a court could award. However, the arbitrator may only award declaratory or injunctive relief in favor of the individual party seeking relief.\n\nNotwithstanding the above, either party may bring an individual action in small claims court for disputes within the court's jurisdiction."
+        },
+        {
+            "title": "13. Class Action and Jury Trial Waiver",
+            "content": "TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW:\n\n• You agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action\n• You waive any right to participate in a class action lawsuit or class-wide arbitration against Third Origin L.L.C-FZ\n• You waive any right to bring claims as a plaintiff or class member in any purported class or representative proceeding\n• The arbitrator may not consolidate more than one person's claims\n• You waive the right to a trial by jury\n\nIf this class action waiver is found to be unenforceable, then the entirety of the arbitration provision shall be null and void, but all other provisions of these Terms shall remain in effect."
+        },
+        {
+            "title": "14. Jurisdiction-Specific Notices",
+            "subsections": [
+                {
+                    "title": "For Users in the European Union/European Economic Area",
+                    "content": "If you are a consumer in the EU/EEA, you may have additional rights under applicable consumer protection laws that cannot be waived by contract. Nothing in these Terms affects your statutory rights as a consumer. You have the right to lodge a complaint with your local data protection supervisory authority regarding our processing of your personal data under GDPR. Some limitations of liability may not apply to you under mandatory EU consumer protection laws."
+                },
+                {
+                    "title": "For Users in the United Kingdom",
+                    "content": "If you are a consumer in the UK, you have legal rights under the Consumer Rights Act 2015 and other laws that cannot be excluded or limited. Nothing in these Terms affects these statutory rights. The limitations and exclusions in these Terms apply only to the extent permitted by applicable UK law."
+                },
+                {
+                    "title": "For Users in California, USA",
+                    "content": "If you are a California resident, you have certain rights under the California Consumer Privacy Act (CCPA). Please see our Privacy Policy for details on how to exercise these rights.\n\nPursuant to California Civil Code Section 1542, you acknowledge that you are waiving any rights with respect to claims that are unknown or unsuspected at the time of acceptance of these Terms. Section 1542 provides: \"A general release does not extend to claims that the creditor or releasing party does not know or suspect to exist in his or her favor at the time of executing the release and that, if known by him or her, would have materially affected his or her settlement with the debtor or released party.\"\n\nIf you are a California resident and have a complaint, you may contact the Complaint Assistance Unit of the Division of Consumer Services of the California Department of Consumer Affairs at 1625 N. Market Blvd., Suite N 112, Sacramento, California 95834, or by telephone at (800) 952-5210."
+                },
+                {
+                    "title": "For Users in Australia",
+                    "content": "If you are a consumer in Australia, you have certain rights under the Australian Consumer Law that cannot be excluded, restricted, or modified. Nothing in these Terms excludes, restricts, or modifies any consumer guarantee, right, or remedy conferred on you by the Australian Consumer Law that cannot be excluded, restricted, or modified by agreement. Our liability for breach of a consumer guarantee is limited, to the extent permitted by law, to resupplying the services or paying the cost of having them resupplied."
+                }
+            ]
+        },
+        {
+            "title": "15. Severability",
+            "content": "If any provision of these Terms is found to be unenforceable or invalid by a court of competent jurisdiction, that provision shall be limited or eliminated to the minimum extent necessary so that these Terms shall otherwise remain in full force and effect and enforceable."
+        },
+        {
+            "title": "16. Contact Us",
             "content": "For questions about these Terms, please contact us at:",
             "contact": {
                 "company": "Third Origin L.L.C-FZ",
