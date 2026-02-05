@@ -193,6 +193,62 @@ body {
   border-radius: 4px;
 }
 
+.beta-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.12);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.app-store-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+  border: 1px solid #333;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.app-store-button:hover {
+  background: linear-gradient(135deg, #2a2a2a 0%, #111 100%);
+  border-color: #444;
+  transform: translateY(-1px);
+}
+
+.web-app-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-accent) 0%, #c2410c 100%);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.web-app-button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
 .app-name {
   font-size: 1.1rem;
   font-weight: 600;
@@ -617,6 +673,7 @@ a.contact-row:hover .contact-value {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
