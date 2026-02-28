@@ -1,0 +1,58 @@
+{
+  "title": "Terms of Service",
+  "effectiveDate": "February 28, 2026",
+  "sections": [
+    {
+      "content": "These Terms of Service (\"Terms\") govern your use of the Kshana web application (the \"App\") operated by Third Origin L.L.C-FZ (\"we,\" \"our,\" or \"us\"). By using the App, you agree to these Terms."
+    },
+    {
+      "title": "Important Disclaimer",
+      "content": "Kshana provides astronomical calculations and Vedic calendar data for informational and educational purposes only. The App does not constitute religious, spiritual, or astrological advice. Panchang elements, muhurta timings, and disha shool guidance are derived from astronomical computations and traditional Vedic formulas. Any decisions you make based on this information are at your own discretion and responsibility.",
+      "is_disclaimer": true
+    },
+    {
+      "title": "1. Description of Service",
+      "content": "Kshana is a Vedic panchang calculator that computes daily calendar elements including tithi, nakshatra, yoga, karana, vara, rashi, paksha, masa, muhurta, hora, and choghadiya for any date and location. The App also provides disha shool (directional travel guidance) calculations and a monthly calendar view."
+    },
+    {
+      "title": "2. Accuracy of Calculations",
+      "content": "Our calculations are based on the Swiss Ephemeris library, which uses NASA JPL DE431 planetary ephemeris data with Lahiri Ayanamsa correction. While we strive for accuracy and validate our results against established references, we do not guarantee that all calculations are error-free.\n\nAstronomical calculations involve complex formulas and edge cases. Minor discrepancies may occur due to differences in ayanamsa values, sunrise/sunset computation methods, or regional panchang traditions."
+    },
+    {
+      "title": "3. Use of the App",
+      "content": "Kshana is provided free of charge. You may use the App for personal, non-commercial purposes. You agree not to:\n\n• Attempt to interfere with or disrupt the App's infrastructure\n• Use automated tools to excessively query the API\n• Misrepresent the source of data obtained from the App"
+    },
+    {
+      "title": "4. No Warranty",
+      "content": "The App is provided \"as is\" and \"as available\" without warranties of any kind, whether express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not warrant that the App will be uninterrupted, error-free, or free of harmful components."
+    },
+    {
+      "title": "5. Limitation of Liability",
+      "content": "To the maximum extent permitted by applicable law, Third Origin L.L.C-FZ shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or goodwill, arising out of or in connection with your use of the App, even if we have been advised of the possibility of such damages."
+    },
+    {
+      "title": "6. URL Sharing",
+      "content": "The App allows you to share calculations by encoding parameters in the URL. You are responsible for any information you choose to share through these links. We are not responsible for how recipients use shared URLs or the data contained within them."
+    },
+    {
+      "title": "7. Changes to the Service",
+      "content": "We reserve the right to modify, suspend, or discontinue the App at any time without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuation of the App."
+    },
+    {
+      "title": "8. Changes to These Terms",
+      "content": "We may revise these Terms from time to time. The most current version will always be available through the App. By continuing to use the App after changes become effective, you agree to be bound by the revised Terms."
+    },
+    {
+      "title": "9. Governing Law",
+      "content": "These Terms shall be governed by and construed in accordance with the laws of the United Arab Emirates, without regard to its conflict of law provisions."
+    },
+    {
+      "title": "10. Contact Us",
+      "content": "If you have questions about these Terms, please contact us at:",
+      "contact": {
+        "company": "Third Origin L.L.C-FZ",
+        "email": "legal@thirdorigin.io"
+      }
+    }
+  ]
+}

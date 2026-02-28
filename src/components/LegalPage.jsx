@@ -8,6 +8,8 @@ const LEGAL_DOCS = {
   'babel-terms': '/legal/babel-terms.json',
   'findash-privacy': '/legal/findash-privacy.json',
   'findash-terms': '/legal/findash-terms.json',
+  'kshana-privacy': '/legal/kshana-privacy.json',
+  'kshana-terms': '/legal/kshana-terms.json',
 }
 
 function LegalPage() {

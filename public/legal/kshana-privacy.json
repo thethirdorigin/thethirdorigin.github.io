@@ -1,0 +1,49 @@
+{
+  "title": "Privacy Policy",
+  "effectiveDate": "February 28, 2026",
+  "sections": [
+    {
+      "content": "Third Origin L.L.C-FZ (\"we,\" \"our,\" or \"us\") operates the Kshana web application (the \"App\"). This Privacy Policy explains how we handle your information when you use our App."
+    },
+    {
+      "title": "1. Information We Collect",
+      "content": "Kshana is designed with privacy at its core. We collect minimal information:\n\n• Location Data: You may optionally provide a city name or latitude/longitude coordinates to calculate location-specific panchang data. This information is sent to our API for computation and is not stored on our servers.\n• Theme Preference: Your light/dark theme selection is stored locally in your browser's localStorage. This data never leaves your device.\n\nWe do not collect, store, or process any personally identifiable information. There are no user accounts, no login requirements, and no profiles."
+    },
+    {
+      "title": "2. How We Use Your Information",
+      "content": "Location data you provide is used solely to:\n\n• Calculate accurate sunrise and sunset times for your location\n• Compute location-specific panchang elements (tithi, nakshatra, yoga, karana, muhurta)\n• Determine disha shool (directional guidance) for travel planning\n\nAll calculations are performed on-demand and no query data is retained after the response is returned."
+    },
+    {
+      "title": "3. Cookies and Tracking",
+      "content": "Kshana does not use cookies, analytics, tracking pixels, or any third-party tracking technologies. We do not use Google Analytics, Firebase, or any similar services.\n\nThe only browser storage used is localStorage for your theme preference."
+    },
+    {
+      "title": "4. Third-Party Services",
+      "content": "The App relies on the following services:\n\n• Swiss Ephemeris: An open-source astronomical calculation library based on NASA JPL DE431 ephemeris data. This runs server-side and does not receive any personal data.\n• AWS Infrastructure: Our API is hosted on AWS Lambda. Requests are processed and discarded; no user data is persisted."
+    },
+    {
+      "title": "5. URL Sharing",
+      "content": "Kshana encodes your selected parameters (date, location) into the URL for sharing convenience. When you share a URL, the recipient can see the parameters you selected. No data is transmitted to us when a URL is shared—it is purely client-side state."
+    },
+    {
+      "title": "6. Data Retention",
+      "content": "We do not retain any user data. Calculations are performed in real-time and results are not stored. Server logs may temporarily contain request metadata (IP addresses, timestamps) as part of standard cloud infrastructure, but these are not linked to any user identity and are automatically purged."
+    },
+    {
+      "title": "7. Children's Privacy",
+      "content": "Kshana does not collect personal information from anyone, including children under 13. The App is informational and does not require any personal data to function."
+    },
+    {
+      "title": "8. Changes to This Policy",
+      "content": "We may update this Privacy Policy from time to time. We will notify you of material changes by updating the \"Effective Date\" at the top of this page."
+    },
+    {
+      "title": "9. Contact Us",
+      "content": "If you have questions about this Privacy Policy, please contact us at:",
+      "contact": {
+        "company": "Third Origin L.L.C-FZ",
+        "email": "privacy@thirdorigin.io"
+      }
+    }
+  ]
+}
