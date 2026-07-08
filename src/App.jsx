@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import logo from './assets/logo.svg'
+import GridPulses from './GridPulses'
 
 function App() {
   return (
     <div className="container">
+      <GridPulses />
       <div className="content">
         {/* Hero */}
         <div className="logo-wrapper fade-in" style={{ animationDelay: '0s' }}>
