@@ -130,13 +130,13 @@ body {
   }
 
   to {
-    transform: translateX(100vw);
+    transform: translateX(var(--travel));
   }
 }
 
 @keyframes pulse-x-rev {
   from {
-    transform: translateX(100vw);
+    transform: translateX(var(--travel));
   }
 
   to {
@@ -146,6 +146,7 @@ body {
 
 /* Vertical pulses */
 .grid-pulse.vertical {
+  top: 0;
   width: 1px;
   height: 140px;
   margin-left: -0.5px;
@@ -183,13 +184,13 @@ body {
   }
 
   to {
-    transform: translateY(100vh);
+    transform: translateY(var(--travel));
   }
 }
 
 @keyframes pulse-y-rev {
   from {
-    transform: translateY(100vh);
+    transform: translateY(var(--travel));
   }
 
   to {

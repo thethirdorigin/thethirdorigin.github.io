@@ -28,9 +28,9 @@ function GridPulses() {
       const horizontal = Math.random() < 0.5
       const reverse = Math.random() < 0.5
       const cyan = Math.random() < 0.35
-      const duration = 2 + Math.random() * 2.5
 
       let line
+      let travel
       if (horizontal) {
         // Pick a horizontal grid line within the visible viewport
         const y = window.scrollY + Math.random() * window.innerHeight
@@ -38,10 +38,17 @@ function GridPulses() {
           Math.round(y / GRID_SIZE) * GRID_SIZE,
           Math.floor(wrapper.clientHeight / GRID_SIZE) * GRID_SIZE
         )
+        travel = wrapper.clientWidth
       } else {
         const maxLine = Math.floor(wrapper.clientWidth / GRID_SIZE)
         line = (1 + Math.floor(Math.random() * (maxLine - 1))) * GRID_SIZE
+        travel = wrapper.clientHeight
       }
+
+      // Constant speed regardless of distance, so pulses crossing the full
+      // page height don't look faster than short horizontal ones
+      const speed = 450 + Math.random() * 450
+      const duration = (travel + TRAIL_LENGTH) / speed
 
       const pulse = {
         id: nextId++,
@@ -50,7 +57,7 @@ function GridPulses() {
         cyan,
         duration,
         line,
-        top: horizontal ? line : window.scrollY,
+        travel,
       }
       setPulses((prev) => [...prev, pulse])
       later(() => {
@@ -84,15 +91,11 @@ function GridPulses() {
           ]
             .filter(Boolean)
             .join(' ')}
-          style={
-            p.horizontal
-              ? { top: `${p.line}px`, animationDuration: `${p.duration}s` }
-              : {
-                  left: `${p.line}px`,
-                  top: `${p.top}px`,
-                  animationDuration: `${p.duration}s`,
-                }
-          }
+          style={{
+            [p.horizontal ? 'top' : 'left']: `${p.line}px`,
+            '--travel': `${p.travel}px`,
+            animationDuration: `${p.duration}s`,
+          }}
         />
       ))}
     </div>
