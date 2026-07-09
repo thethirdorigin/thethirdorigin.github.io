@@ -208,7 +208,7 @@ function App() {
               </div>
             </div>
 
-            {/* Findash */}
+            {/* Findash — retired; uncomment to restore
             <div className="app-card">
               <div className="app-card-header">
                 <div className="app-icon">
@@ -243,6 +243,7 @@ function App() {
                 <Link to="/findash/terms" className="app-link">Terms</Link>
               </div>
             </div>
+            */}
 
             {/* Kshana */}
             <div className="app-card">

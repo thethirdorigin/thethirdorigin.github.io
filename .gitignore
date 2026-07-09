@@ -27,3 +27,6 @@ Thumbs.db
 *.log
 npm-debug.log*
 
+# Brainstorm / local agent artifacts
+.superpowers/
+
