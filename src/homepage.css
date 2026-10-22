@@ -338,10 +338,6 @@ body, .poster, .last, .products-wrap, .work-intro, .hero-main h1,
 }
 .poster.is-launching .hero-main h1 .second > .origin-dot {
   animation:none;
-  filter:brightness(calc(1 + var(--dot-arrival,0) * .45));
-  box-shadow:
-    0 0 calc(var(--dot-arrival,0) * 22px) rgba(235,99,50,calc(var(--dot-arrival,0) * .55)),
-    0 0 0 calc(var(--dot-arrival,0) * .1em) rgba(235,99,50,calc(var(--dot-arrival,0) * .28));
 }
 /* Decoding draws into a canvas on top of a true semantic text node. */
 .decode-wrap {display:inline-block;position:relative;isolation:isolate;vertical-align:baseline;white-space:nowrap;}
@@ -487,3 +483,36 @@ body, .poster, .last, .products-wrap, .work-intro, .hero-main h1,
 @media(prefers-reduced-motion:reduce){
   .decode-wrap .decode-source,.products-line .real-words {opacity:1!important;}
 }
+
+/* Center line through the product grid. Branches are drawn per card in JS. */
+.products-inner {position:relative;}
+.made-threads {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  pointer-events:none;
+  z-index:2;
+}
+.made-threads path {fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.made-threads .made-ghost {stroke:#8a847c;stroke-width:1;opacity:.16;}
+.made-threads .made-spine {
+  stroke:url(#made-spine-accent);
+  stroke-width:1.6;
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+}
+.made-threads .made-branch {
+  stroke:#b08978;
+  stroke-width:1.15;
+  opacity:.84;
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+}
+.made-threads .made-anchor {fill:#d47b50;}
+.made-threads .made-anchor-ring {fill:none;stroke:#c4a08e;stroke-width:1;}
+.made-threads .made-spine {stroke-width:1.35;}
+.made-threads .made-terminal {fill:#c47b50;}
+.made-threads .made-beacon {fill:#e58a5b;}
+.made-threads .made-beacon-halo {fill:rgba(225,127,74,.16);}
