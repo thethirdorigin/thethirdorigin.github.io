@@ -77,6 +77,54 @@ export function mountHomepage() {
     return { open: rings[0], pulse: Math.min(1, Math.max(first, second, third)), rings };
   }
 
+  const pulsePeaks = [340, 794, 1199];
+  const blipDuration = 1680;
+  const blipGlowAt = 0.4857 * blipDuration;
+  function radarBlip(age) {
+    if (age < 0 || age > blipDuration) return null;
+    const u = age / blipDuration;
+    const stops = [
+      { u: 0, b: 1, ring: 0, ringA: 0, glow: 0, glowA: 0 },
+      { u: 0.4857, b: 1.08, ring: 0.037, ringA: 0.11, glow: 0.13, glowA: 0.18 },
+      { u: 0.7714, b: 1.03, ring: 0.08, ringA: 0, glow: 0.09, glowA: 0.07 },
+      { u: 1, b: 1, ring: 0.08, ringA: 0, glow: 0, glowA: 0 }
+    ];
+    let i = 0;
+    while (i < stops.length - 1 && u > stops[i + 1].u) i++;
+    const a = stops[i];
+    const c = stops[Math.min(i + 1, stops.length - 1)];
+    const t = c.u === a.u ? 0 : (u - a.u) / (c.u - a.u);
+    const lerp = (x, y) => x + (y - x) * t;
+    return {
+      b: lerp(a.b, c.b),
+      ring: lerp(a.ring, c.ring),
+      ringA: lerp(a.ringA, c.ringA),
+      glow: lerp(a.glow, c.glow),
+      glowA: lerp(a.glowA, c.glowA)
+    };
+  }
+  function applyRadarBlips() {
+    if (!period) return;
+    if (reduceMotion || launchTime >= launchDuration) {
+      period.style.filter = '';
+      period.style.boxShadow = '';
+      return;
+    }
+    const frames = pulsePeaks
+      .map(peak => radarBlip(launchTime - (peak - blipGlowAt)))
+      .filter(Boolean);
+    if (!frames.length) {
+      period.style.filter = 'brightness(1)';
+      period.style.boxShadow = 'none';
+      return;
+    }
+    period.style.filter = `brightness(${Math.max(...frames.map(f => f.b)).toFixed(3)})`;
+    period.style.boxShadow = frames.flatMap(f => [
+      `0 0 0 ${f.ring.toFixed(4)}em rgba(235,99,50,${f.ringA.toFixed(3)})`,
+      `0 0 ${f.glow.toFixed(4)}em rgba(235,99,50,${f.glowA.toFixed(3)})`
+    ]).join(',');
+  }
+
   function resize() {
     const r = canvas.getBoundingClientRect();
     width = r.width; height = r.height;
@@ -264,19 +312,6 @@ export function mountHomepage() {
       ctx.fillStyle = `rgba(255,195,139,${.78 * visible})`;
       ctx.beginPath(); ctx.arc(dot.x, dot.y, mix(1.1, 1.65, geom.reveal), 0, TWO_PI); ctx.fill();
     });
-
-    // One brief 'arrival' bloom. It then leaves only the actual orange full stop.
-    // A restrained glint at the point as the sculpture departs or returns.
-    // One soft merge pulse tied to the contact itself (also reverses on scroll up).
-    const arrival = launched.pulse;
-    if(arrival>.001){
-      const sz=mix(2,37,arrival);
-      const g=ctx.createRadialGradient(target.x,target.y,1,target.x,target.y,sz);
-      g.addColorStop(0,`rgba(252,167,108,${arrival*.32})`);
-      g.addColorStop(.35,`rgba(234,92,40,${arrival*.11})`);
-      g.addColorStop(1,'rgba(234,92,40,0)');
-      ctx.fillStyle=g;ctx.beginPath();ctx.arc(target.x,target.y,sz,0,TWO_PI);ctx.fill();
-    }
   }
 
   function animate(now) {
@@ -286,9 +321,10 @@ export function mountHomepage() {
       const dt = Math.min(now - previousTime, 50);
       elapsed += dt;
       if (elapsed > 40) launchTime = Math.min(launchDuration, launchTime + dt);
-      const { open, pulse, rings } = launchState(launchTime);
+      const { open, rings } = launchState(launchTime);
       stage.classList.toggle('is-launching', !reduceMotion && launchTime < launchDuration);
-      stage.style.setProperty('--dot-arrival', pulse.toFixed(4));
+      stage.style.setProperty('--dot-arrival', '0');
+      applyRadarBlips();
       const spinning = smoothstep(.02, .12, open);
       const y = window.scrollY;
       const instant = (y - lastScrollSample) / Math.max(1, dt);
@@ -334,15 +370,205 @@ export function mountHomepage() {
 
   const approach = document.querySelector('.work-intro');
   const products = document.querySelector('.products-wrap');
-  const madeField = products.querySelector('.made-field');
-  const madeMain = document.getElementById('made-main');
-  const madeBeacon = document.getElementById('made-beacon');
-  const madeBeaconHalo = document.getElementById('made-beacon-halo');
-  const madeMainLength = madeMain.getTotalLength();
+  const madeInner = products.querySelector('.products-inner');
+  const madeSvg = madeInner.querySelector('.made-threads');
+  const svgNS = 'http://www.w3.org/2000/svg';
+  let threads = null;
+  let threadKey = '';
   const contact = document.querySelector('.last');
+
+  function svgEl(name, attrs) {
+    const node = document.createElementNS(svgNS, name);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+    return node;
+  }
+
+  // The timeline is measured from the product grid. One spine runs the central
+  // gutter (or a left rail when the cards stack). Every .product-card grows a
+  // branch toward its artwork, so adding a card needs no animation changes.
+  // Put each product's mark as the first child of .product-art.
+  function placeThreads() {
+    const cards = [...madeInner.querySelectorAll('.product-card')];
+    const width = madeInner.clientWidth;
+    const height = madeInner.clientHeight;
+    if (!madeSvg || cards.length === 0 || width < 2 || height < 2) return;
+    const innerBox = madeInner.getBoundingClientRect();
+    const localX = value => value - innerBox.left;
+    const localY = value => value - innerBox.top;
+    const boxes = cards.map(card => {
+      const rect = card.getBoundingClientRect();
+      const mark = card.querySelector('.product-art')?.firstElementChild
+        || card.querySelector('.product-art')
+        || card;
+      return { rect, mark: mark.getBoundingClientRect() };
+    });
+    const rows = [];
+    boxes.forEach(box => {
+      const row = rows.find(item => Math.abs(item.top - box.rect.top) < 28);
+      if (row) row.boxes.push(box);
+      else rows.push({ top: box.rect.top, boxes: [box] });
+    });
+    rows.sort((a, b) => a.top - b.top);
+    rows.forEach(row => row.boxes.sort((a, b) => a.rect.left - b.rect.left));
+
+    const columns = [];
+    boxes.slice().sort((a, b) => a.rect.left - b.rect.left).forEach(box => {
+      const column = columns.find(item => Math.abs(item.left - box.rect.left) < 36);
+      if (column) {
+        column.left = Math.min(column.left, box.rect.left);
+        column.right = Math.max(column.right, box.rect.right);
+      } else columns.push({ left: box.rect.left, right: box.rect.right });
+    });
+    columns.sort((a, b) => a.left - b.left);
+    const gridMid = localX((Math.min(...boxes.map(box => box.rect.left)) + Math.max(...boxes.map(box => box.rect.right))) / 2);
+    const rail = columns.length < 2;
+    let spineX = rail ? localX(columns[0].left) - 14 : gridMid;
+    if (!rail) {
+      const gaps = [];
+      for (let i = 0; i < columns.length - 1; i++) gaps.push(localX((columns[i].right + columns[i + 1].left) / 2));
+      gaps.sort((a, b) => Math.abs(a - gridMid) - Math.abs(b - gridMid));
+      spineX = gaps[0];
+    }
+
+    const texts = [...madeInner.querySelectorAll('.products-top h2, .products-top p')].map(el => el.getBoundingClientRect());
+    const hitsText = (x, y) => texts.some(rect => (
+      x > localX(rect.left) - 14 && x < localX(rect.right) + 14 &&
+      y > localY(rect.top) - 8 && y < localY(rect.bottom) + 8
+    ));
+    const firstTop = localY(rows[0].boxes[0].rect.top);
+    let originY = Math.max(12, firstTop - 54);
+    for (let guard = 0; hitsText(spineX, originY) && originY < firstTop - 8 && guard < 12; guard++) originY += 6;
+    rows.forEach(row => {
+      row.branchY = row.boxes.reduce((sum, box) => sum + localY(box.mark.top) + box.mark.height / 2, 0) / row.boxes.length;
+    });
+    const legals = [...madeInner.querySelectorAll('.legal')];
+    const legalBottom = legals.length
+      ? Math.max(...legals.map(el => localY(el.getBoundingClientRect().bottom)))
+      : Math.max(...rows[rows.length - 1].boxes.map(box => localY(box.rect.bottom)));
+    const endY = legalBottom + 18;
+    const spineD = `M ${spineX.toFixed(1)} ${originY.toFixed(1)} L ${spineX.toFixed(1)} ${endY.toFixed(1)}`;
+
+    madeSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    madeSvg.replaceChildren();
+    const gradient = svgEl('linearGradient', {
+      id: 'made-spine-accent',
+      gradientUnits: 'userSpaceOnUse',
+      x1: spineX.toFixed(1),
+      y1: originY.toFixed(1),
+      x2: spineX.toFixed(1),
+      y2: endY.toFixed(1)
+    });
+    gradient.append(
+      svgEl('stop', { offset: '0%', 'stop-color': '#c7784f' }),
+      svgEl('stop', { offset: '48%', 'stop-color': '#da8058' }),
+      svgEl('stop', { offset: '100%', 'stop-color': '#d47b50' })
+    );
+    const defs = svgEl('defs', {});
+    defs.append(gradient);
+    const spine = svgEl('path', { class: 'made-spine', d: spineD, pathLength: '1', stroke: 'url(#made-spine-accent)' });
+    madeSvg.append(defs, svgEl('path', { class: 'made-ghost', d: spineD }), spine);
+    const length = Math.max(1, spine.getTotalLength());
+    const atY = y => {
+      let bestT = 0;
+      let best = spine.getPointAtLength(0);
+      let bestDistance = Infinity;
+      for (let step = 0; step <= 64; step++) {
+        const t = step / 64;
+        const point = spine.getPointAtLength(length * t);
+        const distance = Math.abs(point.y - y);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestT = t;
+          best = point;
+        }
+      }
+      return { t: bestT, point: best };
+    };
+    const anchorRing = svgEl('circle', { class: 'made-anchor-ring', cx: spineX.toFixed(1), cy: originY.toFixed(1), r: '10' });
+    const anchor = svgEl('circle', { class: 'made-anchor', cx: spineX.toFixed(1), cy: originY.toFixed(1), r: '3.3' });
+    madeSvg.append(anchorRing, anchor);
+    const branchNodes = [];
+    rows.forEach(row => {
+      row.boxes.forEach((box, index) => {
+        const depart = atY(row.branchY - 22);
+        const land = branchLanding(box, innerBox, depart.point.x);
+        const dx = land.x - depart.point.x;
+        const lift = index % 2 === 0 ? -16 : 10;
+        const d = `M ${depart.point.x.toFixed(1)} ${depart.point.y.toFixed(1)} C ${(depart.point.x + dx * 0.34).toFixed(1)} ${(depart.point.y + lift).toFixed(1)}, ${(land.x - dx * 0.22).toFixed(1)} ${(land.y + lift * 0.35).toFixed(1)}, ${land.x.toFixed(1)} ${land.y.toFixed(1)}`;
+        const path = svgEl('path', { class: 'made-branch', d, pathLength: '1' });
+        const dot = svgEl('circle', { class: 'made-terminal', cx: land.x.toFixed(1), cy: land.y.toFixed(1), r: '3.15' });
+        dot.style.opacity = '0';
+        madeSvg.append(path, dot);
+        branchNodes.push({
+          path,
+          dot,
+          along: clamp(depart.t + index * 0.035, 0.05, 0.84)
+        });
+      });
+    });
+    const halo = svgEl('circle', { class: 'made-beacon-halo', r: '8' });
+    const beacon = svgEl('circle', { class: 'made-beacon', r: '3.4' });
+    halo.style.opacity = '0';
+    beacon.style.opacity = '0';
+    madeSvg.append(halo, beacon);
+    threads = { spine, length, branches: branchNodes, anchor, anchorRing, beacon, halo, originY, endY };
+  }
+
+  function branchLanding(box, innerBox, spineX) {
+    const left = box.rect.left - innerBox.left;
+    const right = box.rect.right - innerBox.left;
+    const markLeft = box.mark.left - innerBox.left;
+    const markRight = box.mark.right - innerBox.left;
+    const y = Math.min(box.rect.bottom - innerBox.top - 78, Math.max(box.rect.top - innerBox.top + 68, box.mark.top - innerBox.top + box.mark.height / 2));
+    const clearance = 40;
+    if (spineX >= (left + right) / 2) {
+      return { x: Math.min(right - 18, markRight + clearance), y };
+    }
+    return { x: Math.max(left + 18, markLeft - clearance), y };
+  }
+
+  function ensureThreads() {
+    const key = `${madeInner.clientWidth}x${madeInner.clientHeight}x${madeInner.querySelectorAll('.product-card').length}`;
+    if (key === threadKey && threads) return;
+    threadKey = key;
+    placeThreads();
+  }
+
+  function applyThreads(progress) {
+    if (!threads) return;
+    const spineDraw = reduceMotion ? 1 : smoothstep(0.02, 1, progress);
+    threads.spine.style.strokeDashoffset = (1 - spineDraw).toFixed(4);
+    const point = threads.spine.getPointAtLength(Math.max(0.012, spineDraw) * threads.length);
+    for (const dot of [threads.beacon, threads.halo]) {
+      dot.setAttribute('cx', point.x.toFixed(2));
+      dot.setAttribute('cy', point.y.toFixed(2));
+    }
+    const tip = reduceMotion ? 1 : smoothstep(0.02, 0.1, spineDraw);
+    threads.beacon.style.opacity = String(tip);
+    threads.halo.style.opacity = String(tip * 0.85);
+    const anchorOpacity = reduceMotion ? 1 : smoothstep(0, 0.06, progress);
+    threads.anchor.style.opacity = String(anchorOpacity);
+    threads.anchorRing.style.opacity = String(anchorOpacity * 0.65);
+    threads.branches.forEach(branch => {
+      const draw = reduceMotion ? 1 : smoothstep(branch.along, Math.min(0.995, branch.along + 0.3), spineDraw);
+      branch.path.style.strokeDashoffset = (1 - draw).toFixed(4);
+      branch.dot.style.opacity = String(smoothstep(0.78, 1, draw));
+    });
+  }
+
+  function threadProgress() {
+    if (!threads) return reduceMotion ? 1 : 0;
+    const origin = madeInner.getBoundingClientRect().top + threads.originY;
+    return clamp((innerHeight * 0.9 - origin) / (innerHeight * 0.85), 0, 1);
+  }
+  onFontsReady(() => {
+    threadKey = '';
+    ensureThreads();
+    applyThreads(threadProgress());
+  });
   function sectionScrollProgress(el) {
-    const r=el.getBoundingClientRect();
-    return clamp((innerHeight * .94 - r.top) / Math.max(innerHeight * .78, r.height * .76), 0, 1);
+    const top = el.getBoundingClientRect().top;
+    return clamp((innerHeight * 0.92 - top) / (innerHeight * 0.7), 0, 1);
   }
   function scrollSections() {
     if (reduceMotion) {
@@ -351,27 +577,24 @@ export function mountHomepage() {
       products.style.setProperty('--ideas-scale', 1);
       products.style.setProperty('--real-clip','0%');
       window.dispatchEvent(new CustomEvent('made-progress', { detail: {value:1} }));
-      const pos = madeMain.getPointAtLength(madeMainLength);
-      for (const dot of [madeBeacon, madeBeaconHalo]) {
-        dot.setAttribute('cx',pos.x.toFixed(2));dot.setAttribute('cy',pos.y.toFixed(2));
-      }
+      ensureThreads();
+      applyThreads(1);
       return;
     }
-    const approachTop = scrollY + approach.getBoundingClientRect().top;
-    // Scrub while the *visible content* crosses the viewport, not during an
-    // oversized invisible sticky chapter. This gives ~700 px of real scroll.
-    const approachStart = approachTop - innerHeight * .78;
-    const approachTravel = Math.max(680,innerHeight * .83);
-    const ap = clamp((scrollY - approachStart) / approachTravel,0,1);
+    const headerTop = approach.getBoundingClientRect().top;
+    const headerStart = innerHeight * 0.88;
+    const headerTravel = innerHeight * 0.5;
+    const ap = clamp((headerStart - headerTop) / headerTravel, 0, 1);
     approach.style.setProperty('--approach-progress', ap.toFixed(4));
-    const decoding = smoothstep(.12,.82,ap);
-    approach.style.setProperty('--complex-solid',smoothstep(.55,.97,decoding).toFixed(5));
-    window.dispatchEvent(new CustomEvent('complex-progress',{detail:{value:decoding}}));
+    approach.style.setProperty('--complex-solid', smoothstep(0.82, 1, ap).toFixed(5));
+    const traveled = Math.max(0, headerStart - headerTop);
+    const phase = Math.floor(traveled / (innerHeight * 0.58 / 13));
+    window.dispatchEvent(new CustomEvent('complex-progress', { detail: { value: ap, phase } }));
 
     const madeScene = document.querySelector('.made-sequence');
     const madeTop = scrollY + madeScene.getBoundingClientRect().top;
     const madeStart = madeTop - innerHeight * .87;
-    const madeTravel = Math.max(730,innerHeight * .91);
+    const madeTravel = innerHeight * .91;
     const fieldP = clamp((scrollY-madeStart)/madeTravel,0,1);
     const sequence = smoothstep(.015,.99,fieldP);
     const ideasProgress = smoothstep(0,.43,sequence);
@@ -379,23 +602,8 @@ export function mountHomepage() {
     products.style.setProperty('--ideas-scale',(0.25 + .75*ideasProgress).toFixed(4));
     products.style.setProperty('--real-solid',smoothstep(.52,.94,realProgress).toFixed(5));
     window.dispatchEvent(new CustomEvent('made-progress',{detail:{value:realProgress}}));
-    const fieldTopNow = madeField.getBoundingClientRect().top;
-    const lineStart = innerHeight * 0.9;
-    const lineEnd = innerHeight * 0.55;
-    const lineP = clamp((lineStart - fieldTopNow) / Math.max(1, lineStart - lineEnd), 0, 1);
-    const upper = smoothstep(.08, 1, lineP);
-    const main = lineP;
-    const lower = smoothstep(.14, 1, lineP);
-    products.style.setProperty('--draw-upper',upper.toFixed(4));
-    products.style.setProperty('--draw-main',main.toFixed(4));
-    products.style.setProperty('--draw-lower',lower.toFixed(4));
-    products.style.setProperty('--made-end-opacity',smoothstep(.82,1,lineP).toFixed(4));
-    products.style.setProperty('--made-tip-opacity',smoothstep(.02,.16,lineP).toFixed(4));
-    const pos = madeMain.getPointAtLength(main * madeMainLength);
-    madeBeacon.setAttribute('cx',pos.x.toFixed(2));
-    madeBeacon.setAttribute('cy',pos.y.toFixed(2));
-    madeBeaconHalo.setAttribute('cx',pos.x.toFixed(2));
-    madeBeaconHalo.setAttribute('cy',pos.y.toFixed(2));
+    ensureThreads();
+    applyThreads(threadProgress());
     const cp=sectionScrollProgress(contact);
     contact.style.setProperty('--contact-progress',cp.toFixed(4));
     contact.style.setProperty('--arrow-progress',smoothstep(.26,.83,cp).toFixed(4));
@@ -408,9 +616,9 @@ export function mountHomepage() {
     const progress = reduceMotion ? 0 : clamp(-scene.getBoundingClientRect().top / Math.max(1, scene.offsetHeight - stage.offsetHeight), 0, 1);
     heroScroll = progress;
     stage.style.setProperty('--scroll-progress', progress.toFixed(3));
-    const { pulse } = launchState(launchTime);
     stage.classList.toggle('is-launching', !reduceMotion && launchTime < launchDuration);
-    stage.style.setProperty('--dot-arrival', pulse.toFixed(4));
+    stage.style.setProperty('--dot-arrival', '0');
+    applyRadarBlips();
     scrollSections();
     if (reduceMotion || !raf) render();
   }
@@ -625,7 +833,7 @@ export function mountHomepage() {
   const ramp=(a,b,n)=>smooth((n-a)/(b-a));
   const noise=n=>{const s=Math.sin(n*157.77+24.56)*43758.545;return s-Math.floor(s)};
   const glyphs='01A7#X3F+<>/∴';
-  let progress=reduced?1:0, positions=[],baseline=0,font='',width=0,height=0,dpr=1;
+  let progress=reduced?1:0, phaseCount=0, positions=[],baseline=0,font='',width=0,height=0,dpr=1;
   function measure(){
     const br=canvas.getBoundingClientRect();
     width=Math.max(1,Math.ceil(br.width));height=Math.max(1,Math.ceil(br.height));
@@ -656,12 +864,12 @@ export function mountHomepage() {
     ctx.textBaseline='alphabetic';
     ctx.textAlign='center';
     const early=ramp(0,.10,progress);
-    const fade=1-ramp(.64,.97,progress);
+    const fade=1-ramp(.82,1,progress);
     positions.forEach((pos,i)=>{
-      const local=ramp(.03+i*.025,.46+i*.027,progress);
+      const local=ramp(.08+i*.04,.84+i*.03,progress);
       const center=pos.x+pos.w/2;
       const shift=(1-local)*((noise(i*6.7)-.5)*5);
-      const phase=Math.floor(progress*13);
+      const phase=phaseCount;
       const char=glyphs[Math.floor(noise(i*29.1+phase*11.7)*glyphs.length)%glyphs.length];
       if(local<.99){
         ctx.globalAlpha=(.12+.34*(1-local))*early*fade;
@@ -679,7 +887,7 @@ export function mountHomepage() {
     });
     ctx.globalAlpha=1;
   }
-  listen(window,'complex-progress',event=>{progress=event.detail.value;draw()});
+  listen(window,'complex-progress',event=>{progress=event.detail.value;phaseCount=event.detail.phase||Math.floor(progress*13);draw()});
   listen(window,'resize',measure,{passive:true});
   onFontsReady(measure);
   measure();
