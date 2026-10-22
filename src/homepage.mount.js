@@ -46,7 +46,9 @@ export function mountHomepage() {
   let idleYaw = 0, idleNodePhase = 0;
   let heroScroll = 0;
   let launchTime = 0;
-  const launchDuration = 1800;
+  let scrollRate = 0;
+  let lastScrollSample = window.scrollY;
+  const launchDuration = 1863;
 
   const paths = [
     { tilt: .95, direction: -.83, radius: .92, phase: .28, tint: [245, 143, 91] },
@@ -60,7 +62,20 @@ export function mountHomepage() {
     const t = clamp((x - a) / Math.max(0.0001, b - a), 0, 1);
     return t * t * (3 - 2 * t);
   };
-  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  function launchState(ms) {
+    if (reduceMotion) return { open: 1, pulse: 0, rings: [1, 1, 1] };
+    const t = clamp(ms, 0, launchDuration);
+    const first = Math.exp(-(((t - 340) / 122) ** 2));
+    const second = Math.exp(-(((t - 794) / 102) ** 2)) * 1.08;
+    const third = Math.exp(-(((t - 1199) / 94) ** 2)) * 1.16;
+    const depart = [211, 664, 1102];
+    const durations = [794, 745, 713];
+    const rings = depart.map((start, i) => {
+      const u = clamp((t - start) / durations[i], 0, 1);
+      return u * u * (3 - 2 * u);
+    });
+    return { open: rings[0], pulse: Math.min(1, Math.max(first, second, third)), rings };
+  }
 
   function resize() {
     const r = canvas.getBoundingClientRect();
@@ -101,91 +116,159 @@ export function mountHomepage() {
     return { x: r.left + r.width / 2 - cr.left, y: r.top + r.height / 2 - cr.top };
   }
 
+  function restingOrbit() {
+    const mobile = width < 700;
+    const headline = document.querySelector('.headline');
+    const canvasBox = canvas.getBoundingClientRect();
+    const titleRight = headline
+      ? headline.getBoundingClientRect().right - canvasBox.left
+      : width * 0.42;
+    const gap = width - titleRight;
+    if (!mobile && gap > width * 0.36) {
+      const margin = Math.max(48, gap * 0.08);
+      const room = Math.max(120, gap - margin * 1.4);
+      const radius = Math.min(room * 0.46, height * 0.44);
+      const reach = radius * 1.16;
+      return {
+        cx: clamp(titleRight + margin + reach, reach, width - reach),
+        cy: height * 0.46,
+        radius
+      };
+    }
+    return {
+      cx: width * (mobile ? .735 : .716),
+      cy: height * (mobile ? .36 : .45),
+      radius: Math.min(width * (mobile ? .58 : .29), height * (mobile ? .305 : .382))
+    };
+  }
+
   function render() {
     if (!width || !height) return;
     ctx.clearRect(0, 0, width, height);
     const mobile = width < 700;
-    const p = heroScroll;
-    // When the page loads, reveal the sculpture FROM the actual punctuation.
-    // Scroll scrubs that same journey in reverse without starting another animation.
-    const launch = reduceMotion ? 1 : smoothstep(0, launchDuration, launchTime);
-    const contraction = smoothstep(.06, .98, p);
-    // Exactly one shape parameter controls both directions of the same animation.
-    const open = launch * (1 - contraction);
-    // Fade only after the ring has landed over the visible period.
-    // The ring keeps the diameter of the dot, instead of collapsing to 1px.
-    const opacity = smoothstep(.015, .12, open);
-    const fade = 1 - opacity;
-    const pulse = .48 + .16 * open;
+    // Each ring draws out of the period on its own, already near its final size.
+    const launched = launchState(launchTime);
+    const rings = launched.rings;
+    const revealed = Math.max(rings[0], rings[1], rings[2]);
+    const fade = 1 - smoothstep(.04, .2, revealed);
+    const pulse = .48 + .16 * revealed;
     const target = punctuationPosition();
-    // The orbit arrives at the centre well before the final fade.
-    const travel = smoothstep(.135, .985, open);
-    const cx = mix(target.x, width * (mobile ? .735 : .716), travel);
-    const cy = mix(target.y, height * (mobile ? .36 : .45), travel);
-    const baseRadius = Math.min(width * (mobile ? .58 : .29), height * (mobile ? .305 : .382));
-    const dotDiameter = period.getBoundingClientRect().width;
-    const restingRadius = dotDiameter / 2.35;
-    const radius = mix(restingRadius, baseRadius, smoothstep(0, 1, open));
-    // Idle motion only when fully expanded AND at the top of the page. At the
-    // first scroll movement it eases out, leaving one reversible geometry path.
-    // Phases are integrated every frame and then held during scroll. Never
-    // multiply a large running clock by a fading weight (which caused the snap).
-    const yaw = .12 + (1-open) * .22 + idleYaw;
+    const home = restingOrbit();
+    const explode = reduceMotion ? 0 : smoothstep(.02, .88, heroScroll);
+    const cover = Math.hypot(width, height) * 0.58;
+    const bloom = explode * 0.62;
+    const yaw = .12 + idleYaw;
     const drift = Math.sin(idleYaw * .64) * .04;
+    const ringGeom = paths.map((path, i) => {
+      const settle = rings[i];
+      const ringRadius = home.radius * mix(.8, 1, settle);
+      const fromCx = mix(target.x, home.cx, .68);
+      const fromCy = mix(target.y, home.cy, .68);
+      const ringCx = mix(fromCx, home.cx, settle);
+      const ringCy = mix(fromCy, home.cy, settle);
+      return {
+        path,
+        reveal: rings[i],
+        cx: mix(ringCx, width * 0.5, explode),
+        cy: mix(ringCy, height * 0.5, explode),
+        radius: mix(ringRadius, cover, explode)
+      };
+    });
 
-    // Ambient light tracks the sculpture toward the punctuation.
-    const glowSize = Math.max(25, radius * 1.6);
-    const halo = ctx.createRadialGradient(cx,cy,1,cx,cy,glowSize);
-    halo.addColorStop(0,`rgba(238,103,53,${(.10 + pulse * .045)*(1-fade*.8)})`);
-    halo.addColorStop(.52,`rgba(172,65,39,${.05*(1-fade)})`);
-    halo.addColorStop(1,'rgba(173,73,42,0)');
-    ctx.fillStyle = halo;
-    ctx.fillRect(cx-glowSize,cy-glowSize,glowSize*2,glowSize*2);
+    const shown = ringGeom.filter(g => g.reveal > .03);
+    if (shown.length) {
+      const gx = shown.reduce((s, g) => s + g.cx, 0) / shown.length;
+      const gy = shown.reduce((s, g) => s + g.cy, 0) / shown.length;
+      const gr = shown.reduce((s, g) => s + g.radius, 0) / shown.length;
+      const glowSize = Math.max(25, gr * 1.6);
+      const halo = ctx.createRadialGradient(gx, gy, 1, gx, gy, glowSize);
+      halo.addColorStop(0, `rgba(238,103,53,${(.10 + pulse * .045) * (1 - fade * .8)})`);
+      halo.addColorStop(.52, `rgba(172,65,39,${.05 * (1 - fade)})`);
+      halo.addColorStop(1, 'rgba(173,73,42,0)');
+      ctx.fillStyle = halo;
+      ctx.fillRect(gx - glowSize, gy - glowSize, glowSize * 2, glowSize * 2);
+    }
+
+    function facingAngle(path, radius, cx, cy) {
+      const dist2 = (a) => {
+        const p = point(path, a, yaw, radius, cx, cy, bloom);
+        const dx = p.x - target.x, dy = p.y - target.y;
+        return dx * dx + dy * dy;
+      };
+      let best = 0, bestD = Infinity;
+      for (let k = 0; k < 36; k++) {
+        const a = k / 36 * TWO_PI;
+        const d = dist2(a);
+        if (d < bestD) { bestD = d; best = a; }
+      }
+      let left = best - TWO_PI / 36, right = best + TWO_PI / 36;
+      for (let n = 0; n < 8; n++) {
+        const m1 = left + (right - left) / 3;
+        const m2 = right - (right - left) / 3;
+        if (dist2(m1) < dist2(m2)) right = m2;
+        else left = m1;
+      }
+      return (left + right) / 2;
+    }
 
     const samples = 210;
+    const step = TWO_PI / samples;
     const strokes = [];
-    paths.forEach((path, i) => {
-      for (let j = 0; j < samples; j++) {
-        const a = j / samples * TWO_PI;
-        const b = (j + 1) / samples * TWO_PI;
-        const one = point(path, a, yaw, radius, cx, cy, (1-open) * .22);
-        const two = point(path, b, yaw, radius, cx, cy, (1-open) * .22);
+    ringGeom.forEach((geom, i) => {
+      if (geom.reveal < .015) return;
+      if (geom.path.drawOrigin == null) {
+        geom.path.drawOrigin = facingAngle(geom.path, geom.radius, geom.cx, geom.cy);
+      }
+      const origin = geom.path.drawOrigin;
+      const span = geom.reveal * TWO_PI;
+      const count = Math.max(1, Math.ceil(span / step));
+      for (let j = 0; j < count; j++) {
+        const a = origin + j * step;
+        const b = origin + Math.min(span, (j + 1) * step);
+        const one = point(geom.path, a, yaw, geom.radius, geom.cx, geom.cy, bloom);
+        const two = point(geom.path, b, yaw, geom.radius, geom.cx, geom.cy, bloom);
         const z = (one.z + two.z) * .5;
-        const glint = Math.pow(Math.max(0, Math.cos(a - 1 - i * .75 + (1-open) * .9 + drift * .42)), 15);
-        strokes.push({one,two,z,glint,path});
+        const glint = Math.pow(Math.max(0, Math.cos(a - 1 - i * .75 + drift * .42)), 15);
+        strokes.push({ one, two, z, glint, path: geom.path, reveal: geom.reveal });
       }
     });
-    strokes.sort((a,b)=>a.z-b.z);
+    strokes.sort((a, b) => a.z - b.z);
     ctx.lineCap = 'round';
     strokes.forEach(seg => {
-      const front = clamp((seg.z+.65)/1.55,0,1);
-      const alpha = (.085 + .43*Math.pow(front,1.85)+seg.glint*.24)*(1-fade);
-      if(alpha < .002)return;
-      const [r,g,b] = seg.path.tint;
+      const front = clamp((seg.z + .65) / 1.55, 0, 1);
+      const appear = smoothstep(.02, .14, seg.reveal);
+      const forming = 1 - smoothstep(.82, 1, seg.reveal);
+      const floor = mix(.085, .34, forming);
+      const alpha = (floor + .43 * Math.pow(front, 1.85) + seg.glint * .24 * (1 - forming * .75)) * appear;
+      if (alpha < .002) return;
+      const [r, g, b] = seg.path.tint;
       ctx.strokeStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
-      ctx.lineWidth = .85+front*.65+seg.glint*.65;
-      ctx.beginPath();ctx.moveTo(seg.one.x,seg.one.y);ctx.lineTo(seg.two.x,seg.two.y);ctx.stroke();
+      ctx.lineWidth = .85 + front * .65 + seg.glint * .65;
+      ctx.beginPath(); ctx.moveTo(seg.one.x, seg.one.y); ctx.lineTo(seg.two.x, seg.two.y); ctx.stroke();
     });
 
-    // The same three light points travel with the converging trajectories.
-    paths.forEach((path,i) => {
-      const a = path.phase + (1-open) * .60 * (i%2 ? -1 : 1) + idleNodePhase * (i%2 ? -1 : 1);
-      const dot = point(path,a,yaw,radius,cx,cy,(1-open)*.22);
-      const visible = clamp((dot.z+.75)/1.25,.4,1)*(1-fade);
-      const lightSize = mix(3,mobile?11:15,open);
-      const g=ctx.createRadialGradient(dot.x,dot.y,.1,dot.x,dot.y,lightSize);
-      g.addColorStop(0,`rgba(255,199,148,${.58*visible})`);
-      g.addColorStop(.25,`rgba(237,111,58,${.29*visible})`);
-      g.addColorStop(1,'rgba(237,111,58,0)');
-      ctx.fillStyle=g;ctx.beginPath();ctx.arc(dot.x,dot.y,lightSize,0,TWO_PI);ctx.fill();
-      ctx.fillStyle=`rgba(255,195,139,${.78*visible})`;
-      ctx.beginPath();ctx.arc(dot.x,dot.y,mix(.7,1.65,open),0,TWO_PI);ctx.fill();
+    ringGeom.forEach((geom, i) => {
+      if (geom.reveal < .04) return;
+      const origin = geom.path.drawOrigin ?? geom.path.phase;
+      if (geom.reveal >= 1 && geom.path.spinFrom == null) geom.path.spinFrom = idleNodePhase;
+      const spin = geom.path.spinFrom == null ? 0 : (idleNodePhase - geom.path.spinFrom) * (i % 2 ? -1 : 1);
+      const cruise = origin + Math.min(1, geom.reveal) * TWO_PI + spin;
+      const dot = point(geom.path, cruise, yaw, geom.radius, geom.cx, geom.cy, bloom);
+      const visible = clamp((dot.z + .75) / 1.25, .4, 1) * smoothstep(.04, .16, geom.reveal);
+      const lightSize = (mobile ? 11 : 15) * mix(1, 2.1, explode);
+      const g = ctx.createRadialGradient(dot.x, dot.y, .1, dot.x, dot.y, lightSize);
+      g.addColorStop(0, `rgba(255,199,148,${.58 * visible})`);
+      g.addColorStop(.25, `rgba(237,111,58,${.29 * visible})`);
+      g.addColorStop(1, 'rgba(237,111,58,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(dot.x, dot.y, lightSize, 0, TWO_PI); ctx.fill();
+      ctx.fillStyle = `rgba(255,195,139,${.78 * visible})`;
+      ctx.beginPath(); ctx.arc(dot.x, dot.y, mix(1.1, 1.65, geom.reveal), 0, TWO_PI); ctx.fill();
     });
 
     // One brief 'arrival' bloom. It then leaves only the actual orange full stop.
     // A restrained glint at the point as the sculpture departs or returns.
     // One soft merge pulse tied to the contact itself (also reverses on scroll up).
-    const arrival = smoothstep(.01,.07,open) * (1-smoothstep(.13,.24,open));
+    const arrival = launched.pulse;
     if(arrival>.001){
       const sz=mix(2,37,arrival);
       const g=ctx.createRadialGradient(target.x,target.y,1,target.x,target.y,sz);
@@ -202,13 +285,24 @@ export function mountHomepage() {
     if (previousTime) {
       const dt = Math.min(now - previousTime, 50);
       elapsed += dt;
-      if (heroScroll < .99 && elapsed > 480) launchTime = Math.min(launchDuration, launchTime + dt);
-      // Ease the angular velocity to zero, not the accumulated angle to zero.
-      // This preserves absolute orientation at the start of every scroll.
-      const open = smoothstep(0,launchDuration,launchTime) * (1-smoothstep(.06,.98,heroScroll));
-      const speed = smoothstep(.65,.99,open) * (1-smoothstep(.015,.15,heroScroll));
-      idleYaw += dt * .00013 * speed;
-      idleNodePhase += dt * .00011 * speed;
+      if (elapsed > 40) launchTime = Math.min(launchDuration, launchTime + dt);
+      const { open, pulse, rings } = launchState(launchTime);
+      stage.classList.toggle('is-launching', !reduceMotion && launchTime < launchDuration);
+      stage.style.setProperty('--dot-arrival', pulse.toFixed(4));
+      const spinning = smoothstep(.02, .12, open);
+      const y = window.scrollY;
+      const instant = (y - lastScrollSample) / Math.max(1, dt);
+      lastScrollSample = y;
+      scrollRate += (instant - scrollRate) * 0.22;
+      // Downward travel, leaving the hero, speeds the spin. Slowing or
+      // scrolling back lets it fall toward a quieter rate.
+      const outward = Math.max(0, scrollRate);
+      const returning = Math.max(0, -scrollRate);
+      const idle = 0.00015;
+      const stillForming = 1 - Math.min(rings[0], rings[1], rings[2]);
+      const rate = Math.max(0.00005, idle - returning * 0.00035) + outward * 0.00115 + stillForming * 0.00072;
+      idleYaw += dt * rate * spinning;
+      idleNodePhase += dt * rate * spinning;
     }
     previousTime = now;
     render();
@@ -235,7 +329,7 @@ export function mountHomepage() {
   const heroObserver = observe(entries => {
     onScreen = entries[0].isIntersecting;
     onScreen ? start() : stop();
-  }, { threshold: 0 });
+  }, { threshold: 0, rootMargin: '280px 0px 0px 0px' });
   heroObserver.observe(stage);
 
   const approach = document.querySelector('.work-intro');
@@ -314,10 +408,9 @@ export function mountHomepage() {
     const progress = reduceMotion ? 0 : clamp(-scene.getBoundingClientRect().top / Math.max(1, scene.offsetHeight - stage.offsetHeight), 0, 1);
     heroScroll = progress;
     stage.style.setProperty('--scroll-progress', progress.toFixed(3));
-    const launch = reduceMotion ? 1 : smoothstep(0,launchDuration,launchTime);
-    const open = launch * (1-smoothstep(.06,.98,progress));
-    const merge = smoothstep(.01,.07,open)*(1-smoothstep(.13,.24,open));
-    stage.style.setProperty('--dot-arrival', merge.toFixed(4));
+    const { pulse } = launchState(launchTime);
+    stage.classList.toggle('is-launching', !reduceMotion && launchTime < launchDuration);
+    stage.style.setProperty('--dot-arrival', pulse.toFixed(4));
     scrollSections();
     if (reduceMotion || !raf) render();
   }
@@ -357,6 +450,19 @@ export function mountHomepage() {
   const clamp = (n,a=0,b=1) => Math.min(b,Math.max(a,n));
   const smooth = n => n*n*(3-2*n);
 
+  function placeArrowTip(){
+    const stroke = arrow.querySelector('.swoop-stroke');
+    const tip = arrow.querySelector('.swoop-tip');
+    const raw = getComputedStyle(document.querySelector('.last')).getPropertyValue('--arrow-progress');
+    const progress = clamp(parseFloat(raw) || 0);
+    const length = stroke.getTotalLength();
+    const dist = Math.max(0.5, progress * length);
+    const point = stroke.getPointAtLength(Math.min(length, dist));
+    const prev = stroke.getPointAtLength(Math.max(0, dist - 14));
+    const heading = Math.atan2(point.y - prev.y, point.x - prev.x) * 180 / Math.PI;
+    tip.setAttribute('transform', `translate(${point.x.toFixed(2)} ${point.y.toFixed(2)}) rotate(${(heading - 180).toFixed(2)}) translate(-5 -69)`);
+    tip.style.opacity = progress > 0.03 ? '1' : '0';
+  }
   function positionArrow(){
     // Use layout offsets rather than getBoundingClientRect so unrelated
     // reveal transforms can never shift the arrow tip away from the glyphs.
@@ -372,6 +478,7 @@ export function mountHomepage() {
     arrow.classList.toggle('arrow-flipped', flip);
     arrow.style.left = `${flip ? targetX - (215 * w / 220) : targetX - (5 * w / 220)}px`;
     arrow.style.top = `${targetY - 69 * h / 85}px`;
+    placeArrowTip();
   }
   function updateScrollMotion(){
     for (const label of labels) {
@@ -385,6 +492,7 @@ export function mountHomepage() {
       const fraction = chars / (label.textContent?.length || 1);
       label.style.clipPath = `inset(0 ${(100*(1-fraction)).toFixed(4)}% 0 0)`;
     }
+    placeArrowTip();
     // Made here headline is orchestrated with the same timeline as the SVG paths.
   }
   function placeEverything(){updateScrollMotion();positionArrow();}
