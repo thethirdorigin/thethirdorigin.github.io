@@ -336,6 +336,13 @@ body, .poster, .last, .products-wrap, .work-intro, .hero-main h1,
   82% {filter:brightness(1.08);box-shadow:0 0 0 .037em rgba(235,99,50,.11),0 0 .13em rgba(235,99,50,.18)}
   92% {filter:brightness(1.03);box-shadow:0 0 0 .08em rgba(235,99,50,0),0 0 .09em rgba(235,99,50,.07)}
 }
+.poster.is-launching .hero-main h1 .second > .origin-dot {
+  animation:none;
+  filter:brightness(calc(1 + var(--dot-arrival,0) * .45));
+  box-shadow:
+    0 0 calc(var(--dot-arrival,0) * 22px) rgba(235,99,50,calc(var(--dot-arrival,0) * .55)),
+    0 0 0 calc(var(--dot-arrival,0) * .1em) rgba(235,99,50,calc(var(--dot-arrival,0) * .28));
+}
 /* Decoding draws into a canvas on top of a true semantic text node. */
 .decode-wrap {display:inline-block;position:relative;isolation:isolate;vertical-align:baseline;white-space:nowrap;}
 .motion-ready .decode-wrap .decode-source {opacity:var(--complex-solid,1);}
