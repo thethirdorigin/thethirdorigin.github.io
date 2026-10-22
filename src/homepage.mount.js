@@ -48,7 +48,7 @@ export function mountHomepage() {
   let launchTime = 0;
   let scrollRate = 0;
   let lastScrollSample = window.scrollY;
-  const launchDuration = 2300;
+  const launchDuration = 1863;
 
   const paths = [
     { tilt: .95, direction: -.83, radius: .92, phase: .28, tint: [245, 143, 91] },
@@ -65,11 +65,11 @@ export function mountHomepage() {
   function launchState(ms) {
     if (reduceMotion) return { open: 1, pulse: 0, rings: [1, 1, 1] };
     const t = clamp(ms, 0, launchDuration);
-    const first = Math.exp(-(((t - 420) / 150) ** 2));
-    const second = Math.exp(-(((t - 980) / 125) ** 2)) * 1.08;
-    const third = Math.exp(-(((t - 1480) / 115) ** 2)) * 1.16;
-    const depart = [260, 820, 1360];
-    const durations = [980, 920, 880];
+    const first = Math.exp(-(((t - 340) / 122) ** 2));
+    const second = Math.exp(-(((t - 794) / 102) ** 2)) * 1.08;
+    const third = Math.exp(-(((t - 1199) / 94) ** 2)) * 1.16;
+    const depart = [211, 664, 1102];
+    const durations = [794, 745, 713];
     const rings = depart.map((start, i) => {
       const u = clamp((t - start) / durations[i], 0, 1);
       return u * u * (3 - 2 * u);
