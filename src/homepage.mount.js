@@ -558,8 +558,18 @@ export function mountHomepage() {
 
   function threadProgress() {
     if (!threads) return reduceMotion ? 1 : 0;
-    const origin = madeInner.getBoundingClientRect().top + threads.originY;
-    return clamp((innerHeight * 0.9 - origin) / (innerHeight * 0.85), 0, 1);
+    const box = madeInner.getBoundingClientRect();
+    const origin = box.top + threads.originY;
+    const end = box.top + threads.endY;
+    const startLine = innerHeight * 0.92;
+    // Keep drawing until the end of the line is near the top, but always
+    // finish by the bottom of the page so a tall window cannot outrun it.
+    const finishLine = innerHeight * 0.18;
+    const along = startLine - origin;
+    let travel = (end - origin) + (startLine - finishLine);
+    const maxTravel = startLine - (origin + scrollY) + document.documentElement.scrollHeight - innerHeight;
+    if (maxTravel > 1) travel = Math.min(travel, maxTravel);
+    return clamp(along / Math.max(1, travel), 0, 1);
   }
   onFontsReady(() => {
     threadKey = '';
@@ -583,7 +593,7 @@ export function mountHomepage() {
     }
     const headerTop = approach.getBoundingClientRect().top;
     const headerStart = innerHeight * 0.88;
-    const headerTravel = innerHeight * 0.5;
+    const headerTravel = innerHeight * 0.95;
     const ap = clamp((headerStart - headerTop) / headerTravel, 0, 1);
     approach.style.setProperty('--approach-progress', ap.toFixed(4));
     approach.style.setProperty('--complex-solid', smoothstep(0.82, 1, ap).toFixed(5));
@@ -677,6 +687,53 @@ export function mountHomepage() {
     const link = emailArea.querySelector('.email-link');
     const targetX = link.offsetLeft + emailTld.offsetLeft + emailTld.offsetWidth + 15; // gap after .io, never inside text
     const targetY = link.offsetTop + emailTld.offsetTop + emailTld.offsetHeight / 2;
+    const somewhere = document.querySelector('.somewhere');
+    const stroke = arrow.querySelector('.swoop-stroke');
+    if (!arrow.dataset.swoop) arrow.dataset.swoop = stroke.getAttribute('d');
+    if (!arrow.dataset.view) arrow.dataset.view = arrow.getAttribute('viewBox');
+    const wrapped = somewhere && somewhere.offsetTop > somewhere.parentElement.offsetTop + 4;
+    if (wrapped) {
+      // "somewhere." has wrapped onto its own line. Draw the swoop from the
+      // end of that word down to ".io", instead of from the empty margin.
+      arrow.classList.remove('arrow-flipped');
+      const host = emailArea.offsetParent;
+      const origin = (el) => {
+        let x = 0, y = 0, node = el;
+        while (node && node !== host) {
+          x += node.offsetLeft;
+          y += node.offsetTop;
+          node = node.offsetParent;
+        }
+        return { x, y };
+      };
+      const word = origin(somewhere);
+      const area = origin(emailArea);
+      const startX = word.x + somewhere.offsetWidth - area.x - 8;
+      const startY = word.y + somewhere.offsetHeight - area.y + 8;
+      const endX = targetX;
+      const endY = targetY;
+      const left = Math.min(startX, endX) - 28;
+      const top = Math.min(startY, endY) - 16;
+      const width = Math.max(startX, endX) - left + 28;
+      const height = Math.max(startY, endY) - top + 20;
+      const x0 = startX - left;
+      const y0 = startY - top;
+      const x1 = endX - left;
+      const y1 = endY - top;
+      const bend = Math.max(28, (x0 - x1) * 0.35);
+      arrow.setAttribute('viewBox', `0 0 ${width.toFixed(1)} ${height.toFixed(1)}`);
+      arrow.style.width = `${width}px`;
+      arrow.style.height = `${height}px`;
+      arrow.style.left = `${left}px`;
+      arrow.style.top = `${top}px`;
+      stroke.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} C ${(x0 - bend).toFixed(1)} ${(y0 + 10).toFixed(1)}, ${(x1 + bend).toFixed(1)} ${(y1 - 16).toFixed(1)}, ${x1.toFixed(1)} ${y1.toFixed(1)}`);
+      placeArrowTip();
+      return;
+    }
+    stroke.setAttribute('d', arrow.dataset.swoop);
+    arrow.setAttribute('viewBox', arrow.dataset.view);
+    arrow.style.width = '';
+    arrow.style.height = '';
     const {width:w, height:h} = arrow.getBoundingClientRect();
     // Keep the arrowhead level with the middle of '.io', with a visible gap.
     // When there isn't room on the right (mobile), curve in from above-left.

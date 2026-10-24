@@ -19,6 +19,9 @@
 
 /* A nested accent in the headline must stay inline, not become a third text row. */
 .hero-main h1 .second > span {display:inline}
+/* The shared headline line-height is tighter than the em box, which clips the
+   g descender on iOS. Give only the second line a box tall enough to hold it. */
+.hero-main h1 .second {line-height:1.2}
 /* Visible by default when JavaScript is unavailable. */
 .reveal {opacity:1;transform:none;filter:none}
 /* The artwork is three distinct orbital planes sharing a single origin. */
