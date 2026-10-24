@@ -36,7 +36,6 @@ export function mountHomepage() {
   'use strict';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const mobileDevice = window.matchMedia('(max-width: 700px)').matches;
-  const mobileFrameInterval = 1000 / 45;
   const canvas = document.getElementById('orbit');
   const stage = document.querySelector('.poster');
   const scene = document.querySelector('.poster-scene');
@@ -172,6 +171,13 @@ export function mountHomepage() {
 
   function restingOrbit() {
     const mobile = width < 700;
+    if (mobile) {
+      return {
+        cx: width * .735,
+        cy: height * .36,
+        radius: Math.min(width * .58, height * .305)
+      };
+    }
     const headline = document.querySelector('.headline');
     const canvasBox = canvas.getBoundingClientRect();
     const titleRight = headline
@@ -196,6 +202,131 @@ export function mountHomepage() {
     };
   }
 
+  let heroLayoutKey = '';
+  let heroTarget = { x: 0, y: 0 };
+  let heroHome = { cx: 0, cy: 0, radius: 1 };
+  function heroPlacement() {
+    const key = width + '|' + height + '|' + heroScroll.toFixed(3);
+    if (key !== heroLayoutKey) {
+      heroLayoutKey = key;
+      heroTarget = punctuationPosition();
+      heroHome = restingOrbit();
+    }
+    return { target: heroTarget, home: heroHome };
+  }
+
+  // Phones were issuing one Canvas stroke per ring sample, hundreds of times
+  // a frame. Depth is kept as a handful of bands so the rings still read as
+  // solid, shaded ellipses. Desktop keeps the per-sample stroke.
+  const MOBILE_BANDS = 8;
+  const MOBILE_SAMPLES = 128;
+  const mobileBandPts = paths.map(() => Array.from({ length: MOBILE_BANDS }, () => []));
+  const mobileSparkPts = paths.map(() => []);
+
+  function paintMobileRings(ringGeom, yaw, bloom, drift, facingAngle) {
+    const step = TWO_PI / MOBILE_SAMPLES;
+    for (let i = 0; i < ringGeom.length; i++) {
+      for (let band = 0; band < MOBILE_BANDS; band++) mobileBandPts[i][band].length = 0;
+      mobileSparkPts[i].length = 0;
+      const geom = ringGeom[i];
+      if (geom.reveal < .015) continue;
+      if (geom.path.drawOrigin == null) {
+        geom.path.drawOrigin = facingAngle(geom.path, geom.radius, geom.cx, geom.cy);
+      }
+      const origin = geom.path.drawOrigin;
+      const span = geom.reveal * TWO_PI;
+      const count = Math.max(1, Math.ceil(span / step));
+      const pts = mobileBandPts[i];
+      const sparks = mobileSparkPts[i];
+      for (let j = 0; j < count; j++) {
+        const a = origin + j * step;
+        const b = origin + Math.min(span, (j + 1) * step);
+        const one = point(geom.path, a, yaw, geom.radius, geom.cx, geom.cy, bloom);
+        const two = point(geom.path, b, yaw, geom.radius, geom.cx, geom.cy, bloom);
+        const z = (one.z + two.z) * .5;
+        const front = clamp((z + .65) / 1.55, 0, 1);
+        const band = Math.min(MOBILE_BANDS - 1, (front * MOBILE_BANDS) | 0);
+        pts[band].push(one.x, one.y, two.x, two.y);
+        const glint = Math.pow(Math.max(0, Math.cos(a - 1 - i * .75 + drift * .42)), 15);
+        if (glint > .35) sparks.push(one.x, one.y, two.x, two.y, glint);
+      }
+    }
+    for (let band = 0; band < MOBILE_BANDS; band++) {
+      const front = (band + .5) / MOBILE_BANDS;
+      for (let i = 0; i < ringGeom.length; i++) {
+        const segs = mobileBandPts[i][band];
+        const geom = ringGeom[i];
+        if (segs.length < 4 || geom.reveal < .015) continue;
+        const appear = smoothstep(.02, .14, geom.reveal);
+        const forming = 1 - smoothstep(.82, 1, geom.reveal);
+        const floor = mix(.085, .34, forming);
+        const alpha = (floor + .43 * Math.pow(front, 1.85)) * appear;
+        if (alpha < .002) continue;
+        const [r, g, b] = geom.path.tint;
+        ctx.beginPath();
+        for (let p = 0; p < segs.length; p += 4) {
+          ctx.moveTo(segs[p], segs[p + 1]);
+          ctx.lineTo(segs[p + 2], segs[p + 3]);
+        }
+        ctx.strokeStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
+        ctx.lineWidth = .85 + front * .65;
+        ctx.stroke();
+      }
+    }
+    for (let i = 0; i < ringGeom.length; i++) {
+      const sparks = mobileSparkPts[i];
+      const geom = ringGeom[i];
+      if (sparks.length < 5 || geom.reveal < .015) continue;
+      const appear = smoothstep(.02, .14, geom.reveal);
+      const [r, g, b] = geom.path.tint;
+      ctx.beginPath();
+      for (let p = 0; p < sparks.length; p += 5) {
+        ctx.moveTo(sparks[p], sparks[p + 1]);
+        ctx.lineTo(sparks[p + 2], sparks[p + 3]);
+      }
+      ctx.strokeStyle = `rgba(${r},${g},${b},${(.22 * appear).toFixed(3)})`;
+      ctx.lineWidth = 1.35;
+      ctx.stroke();
+    }
+  }
+
+  function paintDesktopRings(ringGeom, yaw, bloom, drift, facingAngle) {
+    const samples = 210;
+    const step = TWO_PI / samples;
+    const strokes = [];
+    ringGeom.forEach((geom, i) => {
+      if (geom.reveal < .015) return;
+      if (geom.path.drawOrigin == null) {
+        geom.path.drawOrigin = facingAngle(geom.path, geom.radius, geom.cx, geom.cy);
+      }
+      const origin = geom.path.drawOrigin;
+      const span = geom.reveal * TWO_PI;
+      const count = Math.max(1, Math.ceil(span / step));
+      for (let j = 0; j < count; j++) {
+        const a = origin + j * step;
+        const b = origin + Math.min(span, (j + 1) * step);
+        const one = point(geom.path, a, yaw, geom.radius, geom.cx, geom.cy, bloom);
+        const two = point(geom.path, b, yaw, geom.radius, geom.cx, geom.cy, bloom);
+        const z = (one.z + two.z) * .5;
+        const glint = Math.pow(Math.max(0, Math.cos(a - 1 - i * .75 + drift * .42)), 15);
+        strokes.push({ one, two, z, glint, path: geom.path, reveal: geom.reveal });
+      }
+    });
+    strokes.sort((a, b) => a.z - b.z);
+    strokes.forEach(seg => {
+      const front = clamp((seg.z + .65) / 1.55, 0, 1);
+      const appear = smoothstep(.02, .14, seg.reveal);
+      const forming = 1 - smoothstep(.82, 1, seg.reveal);
+      const floor = mix(.085, .34, forming);
+      const alpha = (floor + .43 * Math.pow(front, 1.85) + seg.glint * .24 * (1 - forming * .75)) * appear;
+      if (alpha < .002) return;
+      const [r, g, b] = seg.path.tint;
+      ctx.strokeStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
+      ctx.lineWidth = .85 + front * .65 + seg.glint * .65;
+      ctx.beginPath(); ctx.moveTo(seg.one.x, seg.one.y); ctx.lineTo(seg.two.x, seg.two.y); ctx.stroke();
+    });
+  }
+
   function render() {
     if (!width || !height) return;
     ctx.clearRect(0, 0, width, height);
@@ -206,8 +337,9 @@ export function mountHomepage() {
     const revealed = Math.max(rings[0], rings[1], rings[2]);
     const fade = 1 - smoothstep(.04, .2, revealed);
     const pulse = .48 + .16 * revealed;
-    const target = punctuationPosition();
-    const home = restingOrbit();
+    const placed = heroPlacement();
+    const target = placed.target;
+    const home = placed.home;
     const explode = reduceMotion ? 0 : smoothstep(.02, .88, heroScroll);
     const cover = Math.hypot(width, height) * 0.58;
     const bloom = explode * 0.62;
@@ -265,41 +397,10 @@ export function mountHomepage() {
       return (left + right) / 2;
     }
 
-    const samples = mobileDevice ? 96 : 210;
-    const step = TWO_PI / samples;
-    const strokes = [];
-    ringGeom.forEach((geom, i) => {
-      if (geom.reveal < .015) return;
-      if (geom.path.drawOrigin == null) {
-        geom.path.drawOrigin = facingAngle(geom.path, geom.radius, geom.cx, geom.cy);
-      }
-      const origin = geom.path.drawOrigin;
-      const span = geom.reveal * TWO_PI;
-      const count = Math.max(1, Math.ceil(span / step));
-      for (let j = 0; j < count; j++) {
-        const a = origin + j * step;
-        const b = origin + Math.min(span, (j + 1) * step);
-        const one = point(geom.path, a, yaw, geom.radius, geom.cx, geom.cy, bloom);
-        const two = point(geom.path, b, yaw, geom.radius, geom.cx, geom.cy, bloom);
-        const z = (one.z + two.z) * .5;
-        const glint = Math.pow(Math.max(0, Math.cos(a - 1 - i * .75 + drift * .42)), 15);
-        strokes.push({ one, two, z, glint, path: geom.path, reveal: geom.reveal });
-      }
-    });
-    strokes.sort((a, b) => a.z - b.z);
     ctx.lineCap = 'round';
-    strokes.forEach(seg => {
-      const front = clamp((seg.z + .65) / 1.55, 0, 1);
-      const appear = smoothstep(.02, .14, seg.reveal);
-      const forming = 1 - smoothstep(.82, 1, seg.reveal);
-      const floor = mix(.085, .34, forming);
-      const alpha = (floor + .43 * Math.pow(front, 1.85) + seg.glint * .24 * (1 - forming * .75)) * appear;
-      if (alpha < .002) return;
-      const [r, g, b] = seg.path.tint;
-      ctx.strokeStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
-      ctx.lineWidth = .85 + front * .65 + seg.glint * .65;
-      ctx.beginPath(); ctx.moveTo(seg.one.x, seg.one.y); ctx.lineTo(seg.two.x, seg.two.y); ctx.stroke();
-    });
+    ctx.lineJoin = 'round';
+    if (mobileDevice) paintMobileRings(ringGeom, yaw, bloom, drift, facingAngle);
+    else paintDesktopRings(ringGeom, yaw, bloom, drift, facingAngle);
 
     ringGeom.forEach((geom, i) => {
       if (geom.reveal < .04) return;
@@ -325,10 +426,6 @@ export function mountHomepage() {
     if (!tabVisible || !onScreen || reduceMotion) return;
     // Keep the scroll path responsive when the phone cannot sustain a 60fps
     // decorative redraw. Scroll state is still sampled on every rendered frame.
-    if (mobileDevice && previousTime && now - previousTime < mobileFrameInterval) {
-      raf = scheduleFrame(animate);
-      return;
-    }
     if (previousTime) {
       const dt = Math.min(now - previousTime, 50);
       elapsed += dt;
