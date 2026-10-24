@@ -101,13 +101,13 @@ function App() {
               </div>
             </div>
 
-            {/* OIF Solver */}
+            {/* Solver */}
             <div className="portfolio-card">
               <div className="portfolio-card-header">
                 <span className="portfolio-org">Open Intents Framework</span>
                 <span className="role-badge architect">Architect</span>
               </div>
-              <h3 className="portfolio-name">OIF Solver</h3>
+              <h3 className="portfolio-name">Solver</h3>
               <p className="portfolio-description">
                 Cross-chain intent solver. Architected the modular workspace, 
                 discovery-to-settlement pipeline, and multi-chain execution 
