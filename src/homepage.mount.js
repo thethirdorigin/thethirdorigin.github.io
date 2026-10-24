@@ -558,8 +558,18 @@ export function mountHomepage() {
 
   function threadProgress() {
     if (!threads) return reduceMotion ? 1 : 0;
-    const origin = madeInner.getBoundingClientRect().top + threads.originY;
-    return clamp((innerHeight * 0.9 - origin) / (innerHeight * 1.5), 0, 1);
+    const box = madeInner.getBoundingClientRect();
+    const origin = box.top + threads.originY;
+    const end = box.top + threads.endY;
+    const startLine = innerHeight * 0.92;
+    // Keep drawing until the end of the line is near the top, but always
+    // finish by the bottom of the page so a tall window cannot outrun it.
+    const finishLine = innerHeight * 0.18;
+    const along = startLine - origin;
+    let travel = (end - origin) + (startLine - finishLine);
+    const maxTravel = startLine - (origin + scrollY) + document.documentElement.scrollHeight - innerHeight;
+    if (maxTravel > 1) travel = Math.min(travel, maxTravel);
+    return clamp(along / Math.max(1, travel), 0, 1);
   }
   onFontsReady(() => {
     threadKey = '';
