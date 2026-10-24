@@ -35,6 +35,8 @@ export function mountHomepage() {
 (() => {
   'use strict';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobileDevice = window.matchMedia('(max-width: 700px)').matches;
+  const mobileFrameInterval = 1000 / 45;
   const canvas = document.getElementById('orbit');
   const stage = document.querySelector('.poster');
   const scene = document.querySelector('.poster-scene');
@@ -128,7 +130,11 @@ export function mountHomepage() {
   function resize() {
     const r = canvas.getBoundingClientRect();
     width = r.width; height = r.height;
-    pixelRatio = Math.min(2, window.devicePixelRatio || 1);
+    // A full device-pixel-ratio canvas is disproportionately expensive on
+    // phones, while the orbital linework remains sharp enough at 1.25x.
+    pixelRatio = mobileDevice
+      ? Math.min(1.25, window.devicePixelRatio || 1)
+      : Math.min(2, window.devicePixelRatio || 1);
     canvas.width = Math.max(1, Math.round(width * pixelRatio));
     canvas.height = Math.max(1, Math.round(height * pixelRatio));
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
@@ -259,7 +265,7 @@ export function mountHomepage() {
       return (left + right) / 2;
     }
 
-    const samples = 210;
+    const samples = mobileDevice ? 96 : 210;
     const step = TWO_PI / samples;
     const strokes = [];
     ringGeom.forEach((geom, i) => {
@@ -317,6 +323,12 @@ export function mountHomepage() {
   function animate(now) {
     raf = null;
     if (!tabVisible || !onScreen || reduceMotion) return;
+    // Keep the scroll path responsive when the phone cannot sustain a 60fps
+    // decorative redraw. Scroll state is still sampled on every rendered frame.
+    if (mobileDevice && previousTime && now - previousTime < mobileFrameInterval) {
+      raf = scheduleFrame(animate);
+      return;
+    }
     if (previousTime) {
       const dt = Math.min(now - previousTime, 50);
       elapsed += dt;
